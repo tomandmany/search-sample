@@ -1,22 +1,22 @@
 // パス: /app/page.tsx
 
-import { getProjects } from "@/data/projects";
+import { getPrograms } from "@/data/programs";
 
 export default async function Page({ params }: { params: { id: string } }) {
-    const projectId = params.id;
-    const projects = await getProjects();
+    const programId = params.id;
+    const programs = await getPrograms();
 
-    // currentProjectをフィルタリング
-    const currentProject = projects.find(project => project.id === projectId);
+    // currentprogramをフィルタリング
+    const currentprogram = programs.find(program => program.id === programId);
 
     return (
         <main className="flex min-h-screen flex-col items-center justify-between p-24">
-            {currentProject ? (
+            {currentprogram ? (
                 <>
-                    <h1 className="text-2xl font-bold">{currentProject.name}</h1>
+                    <h1 className="text-2xl font-bold">{currentprogram.name}</h1>
                 </>
             ) : (
-                <p>Project not found</p>
+                <p>program not found</p>
             )}
         </main>
     );
