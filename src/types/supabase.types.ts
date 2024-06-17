@@ -9,31 +9,56 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      channels: {
+      channelModels: {
         Row: {
           createdAt: string
           id: string
-          name: string | null
-          participantId: string | null
-          url: string | null
+          name: string
         }
         Insert: {
           createdAt?: string
           id?: string
-          name?: string | null
-          participantId?: string | null
-          url?: string | null
+          name: string
         }
         Update: {
           createdAt?: string
           id?: string
-          name?: string | null
-          participantId?: string | null
-          url?: string | null
+          name?: string
+        }
+        Relationships: []
+      }
+      participantChannels: {
+        Row: {
+          channelModelId: string
+          createdAt: string
+          id: string
+          participantId: string
+          url: string
+        }
+        Insert: {
+          channelModelId: string
+          createdAt?: string
+          id?: string
+          participantId: string
+          url: string
+        }
+        Update: {
+          channelModelId?: string
+          createdAt?: string
+          id?: string
+          participantId?: string
+          url?: string
         }
         Relationships: [
           {
-            foreignKeyName: "channels_participantId_fkey"
+            foreignKeyName: "participantChannels_channelModelId_fkey"
+            columns: ["channelModelId"]
+            isOneToOne: false
+            referencedRelation: "channelModels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "participantChannels_participantId_fkey"
             columns: ["participantId"]
             isOneToOne: false
             referencedRelation: "participants"
@@ -61,17 +86,15 @@ export type Database = {
       }
       programs: {
         Row: {
-          catchphrase: string | null
           createdAt: string
           details: string | null
           endHour: string | null
           endMinutes: string | null
           eventDate: Database["public"]["Enums"]["eventDate"] | null
+          genre: Database["public"]["Enums"]["genre"] | null
           id: string
           image: string | null
-          isPhotographable:
-            | Database["public"]["Enums"]["isPhotographable"]
-            | null
+          isPhotographable: Database["public"]["Enums"]["isPhotographable"]
           message: string | null
           name: string | null
           participantId: string | null
@@ -80,20 +103,18 @@ export type Database = {
           ruby: string | null
           startHour: string | null
           startMinutes: string | null
-          venue: string | null
+          venue: Database["public"]["Enums"]["venue"] | null
         }
         Insert: {
-          catchphrase?: string | null
           createdAt?: string
           details?: string | null
           endHour?: string | null
           endMinutes?: string | null
           eventDate?: Database["public"]["Enums"]["eventDate"] | null
+          genre?: Database["public"]["Enums"]["genre"] | null
           id?: string
           image?: string | null
-          isPhotographable?:
-            | Database["public"]["Enums"]["isPhotographable"]
-            | null
+          isPhotographable?: Database["public"]["Enums"]["isPhotographable"]
           message?: string | null
           name?: string | null
           participantId?: string | null
@@ -102,20 +123,18 @@ export type Database = {
           ruby?: string | null
           startHour?: string | null
           startMinutes?: string | null
-          venue?: string | null
+          venue?: Database["public"]["Enums"]["venue"] | null
         }
         Update: {
-          catchphrase?: string | null
           createdAt?: string
           details?: string | null
           endHour?: string | null
           endMinutes?: string | null
           eventDate?: Database["public"]["Enums"]["eventDate"] | null
+          genre?: Database["public"]["Enums"]["genre"] | null
           id?: string
           image?: string | null
-          isPhotographable?:
-            | Database["public"]["Enums"]["isPhotographable"]
-            | null
+          isPhotographable?: Database["public"]["Enums"]["isPhotographable"]
           message?: string | null
           name?: string | null
           participantId?: string | null
@@ -124,7 +143,7 @@ export type Database = {
           ruby?: string | null
           startHour?: string | null
           startMinutes?: string | null
-          venue?: string | null
+          venue?: Database["public"]["Enums"]["venue"] | null
         }
         Relationships: [
           {
@@ -144,8 +163,10 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      eventDate: "11月3日" | "11月4日" | "11月5日"
-      isPhotographable: "可" | "不可"
+      eventDate: "3日" | "4日" | "5日"
+      genre: "音楽" | "ダンス" | "パフォーマンス"
+      isPhotographable: "可" | "不可" | "不明"
+      venue: "メインステージ" | "パフォーマンスエリア" | "エントランスエリア"
     }
     CompositeTypes: {
       [_ in never]: never

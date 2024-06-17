@@ -1,19 +1,18 @@
 // /app/page.tsx
 // @filename: /app/page.tsx
 
-import { getProgramsAndParticipants } from "@/data/programs";
+import { getParticipants } from "@/data/participants";
+import { getPrograms } from "@/data/programs";
 import Link from "next/link";
 
 export default async function Home() {
-  const { programs, participants } = await getProgramsAndParticipants();
-
-  // participantsをMapに変換
-  const participantsMap = new Map(participants.map((participant) => [participant.id, participant.name]));
+  const programs = await getPrograms();
+  const participants = await getParticipants();
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24 gap-20 flex-wrap">
       {programs.map((program) => {
-        const participantName = participantsMap.get(program.participantId || '') || 'Unknown';
+        const filteredParticipant = participants.find((participant) => participant.id === program.participantId);
         return (
           <Link key={program.id} className="overflow-hidden relative" href={`/programs/${program.id}`}>
             <div className="bg-[#F8BB36] p-4 border-2 border-[#EC6A44]">
@@ -31,12 +30,12 @@ export default async function Home() {
                     <div className="border-b-2 border-[#EC6A44] p-2 flex items-center gap-10 before:content-[''] relative before:absolute before:bg-[#EC6A44] before:rounded-full before:w-2 before:aspect-square before:-left-1 before:-bottom-[5px] after:absolute after:bg-[#EF886A] after:rounded-full after:w-2 after:aspect-square after:-right-1 after:-bottom-[5px]">
                       <div>
                         <h4 className="text-xl font-bold">{program.name}</h4>
-                        <h5 className="text-sm">{participantName}</h5>
+                        <h5 className="text-sm">{filteredParticipant?.name}</h5>
                       </div>
                       <div className="bg-gray-400 min-w-[45px] aspect-square rounded-lg" />
                     </div>
                     <div className="flex flex-col gap-1 px-2 py-4 border-b-2 border-dotted border-[#EC6A44]">
-                      <span>日時　{program.eventDate} {program.startHour}:{program.startMinutes} ~ {program.endHour}:{program.endMinutes}</span>
+                      <span>日時　11月{program.eventDate} {program.startHour}:{program.startMinutes} ~ {program.endHour}:{program.endMinutes}</span>
                       <span>場所　{program.venue}</span>
                     </div>
                     <div className="mt-3 p-2 bg-[#FDE9C3] border-2 border-[#F9BB38] rounded-2xl">

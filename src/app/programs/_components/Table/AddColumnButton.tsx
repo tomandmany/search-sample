@@ -1,15 +1,16 @@
 'use client'
 
 import createProgram from "@/actions/programs/createProgram";
+import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
 import { MouseEvent } from 'react';
 
-export default function AddRowButton() {
+export default function AddColumnButton() {
     const handleClick = async (event: MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
 
         const formData = new FormData();
-        formData.append('name', 'New Program');
+        formData.append('name', '新しい企画');
         formData.append('releaseMonth', '1');
         formData.append('releaseDay', '1');
         formData.append('startHour', '00');
@@ -23,11 +24,14 @@ export default function AddRowButton() {
     };
 
     return (
-        <button
-            className="flex justify-center items-center border rounded p-2 mx-auto mt-6 bg-white hover:border-gray-600 transition"
+        <Button
+            variant="default"
+            className="flex justify-center items-center gap-3 mx-auto mt-6"
+            // className="flex justify-center items-center gap-3 border rounded p-2 mx-auto mt-6 bg-white hover:border-gray-600 transition"
             onClick={handleClick}
         >
             <PlusIcon />
-        </button>
+            <span>行を追加する</span>
+        </Button>
     );
 }
