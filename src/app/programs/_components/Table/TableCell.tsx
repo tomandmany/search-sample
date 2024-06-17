@@ -413,6 +413,7 @@ export default function TableCell({ header, program, participant, participantCha
                             className="p-2 mx-auto flex justify-center items-center gap-3 hover:border-gray-600"
                             onClick={handleImageButtonClick}
                         >
+                            <PlusIcon />
                             画像を追加する
                         </Button>
                     )}
