@@ -4,6 +4,7 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import createProgram from "@/actions/programs/createProgram";
+import createParticipant from "@/actions/participants/createParticipant";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { useRouter } from 'next/navigation';
@@ -35,19 +36,19 @@ const genres = [
     "音楽",
     "ダンス",
     "パフォーマンス"
-];
+]
 
 const venues = [
     "メインステージ",
     "パフォーマンスエリア",
     "エントランスエリア"
-];
+]
 
 const eventDates = [
     "3日",
     "4日",
     "5日"
-];
+]
 
 export default function AddRowModal({ onClose, existingParticipants }: AddRowModalProps) {
     const router = useRouter();
@@ -56,9 +57,9 @@ export default function AddRowModal({ onClose, existingParticipants }: AddRowMod
         releaseMonth: '1',
         releaseDay: '1',
         eventDate: '3日',
-        startHour: '10',
+        startHour: '00',
         startMinutes: '00',
-        endHour: '19',
+        endHour: '00',
         endMinutes: '00',
         venue: '',
         message: '',
@@ -69,12 +70,27 @@ export default function AddRowModal({ onClose, existingParticipants }: AddRowMod
         ruby: '',
     });
 
+    const [participantOptions, setParticipantOptions] = useState<string[]>(existingParticipants.map(p => p.name ?? ''));
+
+    useEffect(() => {
+        setParticipantOptions(existingParticipants.map(p => p.name ?? ''));
+    }, [existingParticipants]);
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
     };
 
-    const handleParticipantChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const handleParticipantChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { value } = e.target;
+        setFormData((prevFormData) => ({ ...prevFormData, participantName: value, participantId: '' }));
+        const filteredParticipants = existingParticipants
+            .filter(participant => participant.name?.toLowerCase().includes(value.toLowerCase()))
+            .map(p => p.name ?? '');
+        setParticipantOptions(filteredParticipants);
+    };
+
+    const handleParticipantSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const selectedParticipant = existingParticipants.find(p => p.name === e.target.value);
         if (selectedParticipant) {
             setFormData((prevFormData) => ({
@@ -88,7 +104,20 @@ export default function AddRowModal({ onClose, existingParticipants }: AddRowMod
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!formData.participantId) {
+        let participantId = formData.participantId;
+        if (!participantId && formData.participantName) {
+            const participantFormData = new FormData();
+            participantFormData.append('name', formData.participantName);
+            const participantResponse = await createParticipant(participantFormData);
+            if (participantResponse.success && participantResponse.data && participantResponse.data.id) {
+                participantId = participantResponse.data.id;
+            } else {
+                console.error('Failed to create participant:', participantResponse.error);
+                return;
+            }
+        }
+
+        if (!participantId) {
             console.error('Participant ID is undefined');
             return;
         }
@@ -103,7 +132,7 @@ export default function AddRowModal({ onClose, existingParticipants }: AddRowMod
         programFormData.append('endMinutes', formData.endMinutes);
         programFormData.append('venue', formData.venue);
         programFormData.append('message', formData.message);
-        programFormData.append('participantId', formData.participantId);
+        programFormData.append('participantId', participantId);
         programFormData.append('genre', formData.genre);
         programFormData.append('details', formData.details);
         programFormData.append('ruby', formData.ruby);
@@ -324,23 +353,24 @@ export default function AddRowModal({ onClose, existingParticipants }: AddRowMod
                     </div>
                     <div>
                         <label className="block mb-1">団体名</label>
-                        <select
+                        <input
+                            type="text"
                             name="participantName"
                             value={formData.participantName}
                             onChange={handleParticipantChange}
+                            onBlur={handleParticipantSelect}
                             className="w-full p-2 border rounded"
+                            list="participant-options"
                             required
-                        >
-                            <option value="">選択してください</option>
-                            {existingParticipants.map((participant) => (
+                        />
+                        <datalist id="participant-options">
+                            {participantOptions.map((name) => (
                                 <option
-                                    key={participant.id}
-                                    value={participant.name!}
-                                >
-                                    {participant.name}
-                                </option>
+                                    key={name}
+                                    value={name}
+                                />
                             ))}
-                        </select>
+                        </datalist>
                     </div>
                     <div className="flex justify-end">
                         <Button type="submit" variant="default">

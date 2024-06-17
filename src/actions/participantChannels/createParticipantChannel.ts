@@ -1,48 +1,30 @@
-// @filename: /actions/participantChannels/createParticipantChannel.ts
+// パス: /actions/participants/createParticipant.ts
 import { supabase } from '@/lib/supabaseClient';
 import { TablesInsert } from '@/types/supabase.types';
 
 interface Response {
   success: boolean;
-  data?: TablesInsert<'participantChannels'> | null;
+  data?: TablesInsert<'participants'> | null;
   error?: any;
 }
 
-export default async function createParticipantChannel(
+export default async function createParticipant(
   formData: FormData
 ): Promise<Response> {
-  const newParticipantChannel: TablesInsert<'participantChannels'> = {
-    participantId: '',
-    channelModelId: '',
-    url: '',
-  };
-
+  const newParticipant: TablesInsert<'participants'> = {};
   formData.forEach((value, key) => {
-    newParticipantChannel[key as keyof TablesInsert<'participantChannels'>] =
-      value as any;
+    newParticipant[key as keyof TablesInsert<'participants'>] = value as any;
   });
 
-  if (
-    !newParticipantChannel.participantId ||
-    !newParticipantChannel.channelModelId
-  ) {
-    console.error('Invalid UUID for participantId or channelModelId');
-    return {
-      success: false,
-      error: 'Invalid UUID for participantId or channelModelId',
-      data: null,
-    };
-  }
-
   const { data, error } = await supabase
-    .from('participantChannels')
-    .insert([newParticipantChannel])
-    .select(); // <--- .select()を追加
+    .from('participants')
+    .insert([newParticipant])
+    .single();
 
   if (error) {
-    console.error('Error creating participantChannel:', error);
+    console.error('Error creating participant:', error);
     return { success: false, error, data: null };
   }
 
-  return { success: true, data: data[0] }; // 返されるデータを修正
+  return { success: true, data };
 }
