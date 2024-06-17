@@ -1,6 +1,6 @@
 // @filename: /components/TableRoot.tsx
 
-'use client'
+'use client';
 
 import { useEffect, useState } from "react";
 import TableCell from "./TableCell";
@@ -9,6 +9,7 @@ import TableHeader from "./TableHeader";
 import { getPrograms } from "@/data/programs";
 import { getParticipants } from "@/data/participants";
 import { getParticipantChannels } from "@/data/participantChannels";
+import { supabase } from "@/lib/supabaseClient";
 
 // 各列のヘッダーとプロパティ名のマッピング
 const columns = [
@@ -27,6 +28,11 @@ const columns = [
   { header: "公開日", property: "releaseDate" },
 ];
 
+type SupabasePayload<T> = {
+  new: T;
+  old: T | null;
+};
+
 export default function TableRoot() {
   const [programs, setPrograms] = useState<Program[]>([]);
   const [participants, setParticipants] = useState<Participant[]>([]);
@@ -43,14 +49,83 @@ export default function TableRoot() {
       setPrograms(programsData);
       setParticipants(participantsData);
       setParticipantChannels(participantChannelsData);
-    }
+      setLoading(false);
+
+      const programsChannel = supabase
+        .channel('public:programs')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'programs' }, (payload) => {
+          const newProgram = payload.new as Program;
+          setPrograms((prev) => [...prev, newProgram]);
+        })
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'programs' }, (payload) => {
+          const updatedProgram = payload.new as Program;
+          setPrograms((prev) =>
+            prev.map((program) =>
+              program.id === updatedProgram.id ? updatedProgram : program
+            )
+          );
+        })
+        .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'programs' }, (payload) => {
+          const deletedProgram = payload.old as Program;
+          setPrograms((prev) =>
+            prev.filter((program) => program.id !== deletedProgram.id)
+          );
+        })
+        .subscribe();
+
+      const participantsChannel = supabase
+        .channel('public:participants')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'participants' }, (payload) => {
+          const newParticipant = payload.new as Participant;
+          setParticipants((prev) => [...prev, newParticipant]);
+        })
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'participants' }, (payload) => {
+          const updatedParticipant = payload.new as Participant;
+          setParticipants((prev) =>
+            prev.map((participants) =>
+              participants.id === updatedParticipant.id ? updatedParticipant : participants
+            )
+          );
+        })
+        .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'participants' }, (payload) => {
+          const deletedParticipant = payload.old as Participant;
+          setParticipants((prev) =>
+            prev.filter((participant) => participant.id !== deletedParticipant.id)
+          );
+        })
+        .subscribe();
+      
+      const participantChannelsChannel = supabase
+        .channel('public:participantChannels')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'participantChannels' }, (payload) => {
+          const newParticipantChannel = payload.new as ParticipantChannel;
+          setParticipantChannels((prev) => [...prev, newParticipantChannel]);
+        })
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'participantChannels' }, (payload) => {
+          const updatedParticipantChannel = payload.new as ParticipantChannel;
+          setParticipantChannels((prev) =>
+            prev.map((participantChannel) =>
+              participantChannel.id === updatedParticipantChannel.id ? updatedParticipantChannel : participantChannel
+            )
+          );
+        })
+        .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'participantChannels' }, (payload) => {
+          const deletedParticipantChannel = payload.old as ParticipantChannel;
+          setParticipantChannels((prev) =>
+            prev.filter((participantChannel) => participantChannel.id !== deletedParticipantChannel.id)
+          );
+        })
+        .subscribe();
+
+      return () => {
+        programsChannel.unsubscribe();
+        participantsChannel.unsubscribe();
+        participantChannelsChannel.unsubscribe();
+      };
+    };
 
     fetchData();
-
-    if (programs.length > 0) {
-      setLoading(false);
-    }
-  }, [programs, participants, participantChannels]);
+  }, []);
 
   return (
     <form className="flex w-full mx-auto overflow-x-auto border-l border-t">
@@ -58,7 +133,7 @@ export default function TableRoot() {
         <TableHeader>団体名</TableHeader>
         {loading ? (
           programs.map((program) => (
-            <div key={program.id} className=" border-b">
+            <div key={program.id} className="border-b">
               <div className="w-[334px] h-[204px] bg-gray-300 animate-pulse m-4" />
             </div>
           ))
@@ -86,7 +161,7 @@ export default function TableRoot() {
             <TableHeader>{col.header}</TableHeader>
             {loading ? (
               programs.map((program) => (
-                <div key={program.id} className=" border-b">
+                <div key={program.id} className="border-b">
                   <div className="w-[334px] h-[204px] bg-gray-300 animate-pulse m-4" />
                 </div>
               ))

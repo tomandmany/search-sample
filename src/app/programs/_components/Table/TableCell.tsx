@@ -183,30 +183,9 @@ export default function TableCell({ header, program, participant, participantCha
         }
     };
 
-    const handleChange = async (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setValue(event.target.value);
         setInputWidth(getWidth(event.target.value, '16px Arial') + 20);
-
-        if (header === "eventDate") {
-            const formData = new FormData();
-            formData.append('id', program.id);
-            formData.append('eventDate', event.target.value);
-            await updateProgram(formData);
-        }
-
-        if (header === "genre") {
-            const formData = new FormData();
-            formData.append('id', program.id);
-            formData.append('genre', event.target.value);
-            await updateProgram(formData);
-        }
-
-        if (header === "venue") {
-            const formData = new FormData();
-            formData.append('id', program.id);
-            formData.append('venue', event.target.value);
-            await updateProgram(formData);
-        }
     };
 
     const handleIconChange = async (newValue: string) => {
@@ -493,10 +472,8 @@ export default function TableCell({ header, program, participant, participantCha
                         type="text"
                         value={month}
                         onChange={(e) => {
-                            const newMonth = e.target.value;
-                            const newValue = `${newMonth}/${day}`;
+                            const newValue = `${e.target.value}/${day}`;
                             setValue(newValue);
-                            setInputWidth(getWidth(newValue, '16px Arial') + 20);
                         }}
                         className="cursor-pointer rounded pr-1 py-1 hover:bg-gray-200 focus:bg-inherit focus:hover:bg-inherit focus:cursor-text max-w-[26px] text-right"
                         onBlur={handleBlur}
@@ -508,10 +485,8 @@ export default function TableCell({ header, program, participant, participantCha
                         type="text"
                         value={day}
                         onChange={(e) => {
-                            const newDay = e.target.value;
-                            const newValue = `${month}/${newDay}`;
+                            const newValue = `${month}/${e.target.value}`;
                             setValue(newValue);
-                            setInputWidth(getWidth(newValue, '16px Arial') + 20);
                         }}
                         className="cursor-pointer rounded pl-1 py-1 hover:bg-gray-200 focus:bg-inherit focus:hover:bg-inherit focus:cursor-text max-w-[28px] text-left"
                         onBlur={handleBlur}
@@ -527,6 +502,7 @@ export default function TableCell({ header, program, participant, participantCha
                     name="eventDate"
                     value={value}
                     onChange={handleChange}
+                    onBlur={handleBlur} // ここでhandleBlurを追加
                     className='cursor-pointer rounded px-2 py-1 hover:bg-gray-200 border'
                 >
                     <option value="3日">3日</option>
@@ -646,6 +622,7 @@ export default function TableCell({ header, program, participant, participantCha
                         name="genreSelect"
                         id="genreSelect"
                         onChange={handleChange}
+                        onBlur={handleBlur} // ここでhandleBlurを追加
                         className='cursor-pointer rounded px-2 py-1 hover:bg-gray-200 border'
                     >
                         {
@@ -662,6 +639,7 @@ export default function TableCell({ header, program, participant, participantCha
                         name="genreSelect"
                         id="genreSelect"
                         onChange={handleChange}
+                        onBlur={handleBlur} // ここでhandleBlurを追加
                         className='cursor-pointer rounded px-2 py-1 hover:bg-gray-200 border'
                     >
                         <option value={value}>{value}</option>
@@ -684,6 +662,7 @@ export default function TableCell({ header, program, participant, participantCha
                         name="venueSelect"
                         id="venueSelect"
                         onChange={handleChange}
+                        onBlur={handleBlur} // ここでhandleBlurを追加
                         className='cursor-pointer rounded px-2 py-1 hover:bg-gray-200 border'
                     >
                         {
@@ -700,6 +679,7 @@ export default function TableCell({ header, program, participant, participantCha
                         name="venueSelect"
                         id="venueSelect"
                         onChange={handleChange}
+                        onBlur={handleBlur} // ここでhandleBlurを追加
                         className='cursor-pointer rounded px-2 py-1 hover:bg-gray-200 border'
                     >
                         <option value={value}>{value}</option>
