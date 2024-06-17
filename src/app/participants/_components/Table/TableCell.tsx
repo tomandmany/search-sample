@@ -1,3 +1,4 @@
+// @filename: /components/TableCell.tsx
 'use client';
 
 import { useEffect, useState, useRef, FocusEvent as ReactFocusEvent, KeyboardEvent as ReactKeyboardEvent, ChangeEvent } from 'react';
@@ -6,7 +7,7 @@ import { Circle, ExternalLink, PlusIcon, Rss, Trash2, X } from "lucide-react";
 import { FaInstagram, FaTiktok, FaXTwitter } from "react-icons/fa6";
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
-import IconQuestion from '../icons/IconQuestion';
+// import IconQuestion from '../icons/IconQuestion';
 import { getChannelModels } from '@/data/channelModels';
 import { createParticipantChannel, updateParticipantChannel, deleteParticipantChannel } from '@/actions/participantChannels/participantChannels';
 import updateProgram from "@/actions/programs/updateProgram";
@@ -360,7 +361,7 @@ export default function TableCell({ header, program, participant, participantCha
                         >
                             {value === "可" && <Circle />}
                             {value === "不可" && <X />}
-                            {value === "不明" && <IconQuestion />}
+                            {/* {value === "不明" && <IconQuestion />} */}
                         </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-fit">
@@ -388,7 +389,7 @@ export default function TableCell({ header, program, participant, participantCha
                                 onClick={() => handleIconChange("不明")}
                                 className='flex justify中心 items-center gap-3 pl-1'
                             >
-                                <IconQuestion />
+                                {/* <IconQuestion /> */}
                                 不明
                             </Button>
                         </div>

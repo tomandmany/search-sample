@@ -6,9 +6,6 @@ import { useEffect, useState } from "react";
 import TableCell from "./TableCell";
 import TableColumn from "./TableColumn";
 import TableHeader from "./TableHeader";
-import { getPrograms } from "@/data/programs";
-import { getParticipants } from "@/data/participants";
-import { getParticipantChannels } from "@/data/participantChannels";
 
 // 各列のヘッダーとプロパティ名のマッピング
 const columns = [
@@ -27,30 +24,21 @@ const columns = [
   { header: "公開日", property: "releaseDate" },
 ];
 
-export default function TableRoot() {
-  const [programs, setPrograms] = useState<Program[]>([]);
-  const [participants, setParticipants] = useState<Participant[]>([]);
-  const [participantChannels, setParticipantChannels] = useState<ParticipantChannel[]>([]);
+type TableRootProps = {
+  programs: Program[];
+  participants: Participant[];
+  participantChannels: ParticipantChannel[];
+}
+
+export default function TableRoot({ programs, participants, participantChannels }: TableRootProps) {
   const [minHeight, setMinHeight] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const programsData = await getPrograms();
-      const participantsData = await getParticipants();
-      const participantChannelsData = await getParticipantChannels();
-
-      setPrograms(programsData);
-      setParticipants(participantsData);
-      setParticipantChannels(participantChannelsData);
-    }
-
-    fetchData();
-
     if (programs.length > 0) {
       setLoading(false);
     }
-  }, [programs, participants, participantChannels]);
+  }, [programs]);
 
   return (
     <form className="flex w-full mx-auto overflow-x-auto border-l border-t">

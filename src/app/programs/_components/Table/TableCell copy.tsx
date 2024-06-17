@@ -1,3 +1,4 @@
+// @filename: /components/TableCell.tsx
 'use client';
 
 import { useEffect, useState, useRef, FocusEvent as ReactFocusEvent, KeyboardEvent as ReactKeyboardEvent, ChangeEvent } from 'react';
