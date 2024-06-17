@@ -15,7 +15,7 @@ import createProgramImages from "@/actions/storages/programImages/createProgramI
 import deleteProgramImage from '@/actions/storages/programImages/deleteProgramImage';
 
 type TableCellProps = {
-    header?: string;
+    header: string;
     program: Program;
     participant: Participant;
     participantChannel: ParticipantChannel[];
@@ -102,6 +102,9 @@ export default function TableCell({ header, program, participant, participantCha
         switch (header) {
             case "participantName":
                 initialValue = participant?.name || '';
+                break;
+            case "ruby":
+                initialValue = participant?.ruby || '';
                 break;
             case "programName":
                 initialValue = program.name || '';

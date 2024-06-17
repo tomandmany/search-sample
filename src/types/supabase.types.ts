@@ -71,16 +71,19 @@ export type Database = {
           createdAt: string
           id: string
           name: string | null
+          ruby: string | null
         }
         Insert: {
           createdAt?: string
           id?: string
           name?: string | null
+          ruby?: string | null
         }
         Update: {
           createdAt?: string
           id?: string
           name?: string | null
+          ruby?: string | null
         }
         Relationships: []
       }
@@ -100,7 +103,6 @@ export type Database = {
           participantId: string | null
           releaseDay: string | null
           releaseMonth: string | null
-          ruby: string | null
           startHour: string | null
           startMinutes: string | null
           venue: Database["public"]["Enums"]["venue"] | null
@@ -120,7 +122,6 @@ export type Database = {
           participantId?: string | null
           releaseDay?: string | null
           releaseMonth?: string | null
-          ruby?: string | null
           startHour?: string | null
           startMinutes?: string | null
           venue?: Database["public"]["Enums"]["venue"] | null
@@ -140,7 +141,6 @@ export type Database = {
           participantId?: string | null
           releaseDay?: string | null
           releaseMonth?: string | null
-          ruby?: string | null
           startHour?: string | null
           startMinutes?: string | null
           venue?: Database["public"]["Enums"]["venue"] | null
