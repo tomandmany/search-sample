@@ -1,24 +1,13 @@
 // @filename: /components/AddRowButton.tsx
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
 import AddRowModal from './AddRowModal';
-import { getParticipants } from '@/data/participants';
 
 export default function AddRowButton() {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [existingParticipants, setExistingParticipants] = useState<Participant[]>([]);
-
-    useEffect(() => {
-        const fetchParticipants = async () => {
-            const participants = await getParticipants();
-            setExistingParticipants(participants);
-        };
-
-        fetchParticipants();
-    }, []);
 
     const handleClick = () => {
         setIsModalOpen(true);
@@ -40,7 +29,7 @@ export default function AddRowButton() {
                 <PlusIcon />
                 <span>行を追加する</span>
             </Button>
-            {isModalOpen && <AddRowModal onClose={handleClose} existingParticipants={existingParticipants} />}
+            {isModalOpen && <AddRowModal onClose={handleClose} />}
         </>
     );
 }

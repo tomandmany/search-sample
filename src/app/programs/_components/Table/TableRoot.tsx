@@ -28,11 +28,6 @@ const columns = [
   { header: "公開日", property: "releaseDate" },
 ];
 
-type SupabasePayload<T> = {
-  new: T;
-  old: T | null;
-};
-
 export default function TableRoot() {
   const [programs, setPrograms] = useState<Program[]>([]);
   const [participants, setParticipants] = useState<Participant[]>([]);
@@ -49,7 +44,6 @@ export default function TableRoot() {
       setPrograms(programsData);
       setParticipants(participantsData);
       setParticipantChannels(participantChannelsData);
-      setLoading(false);
 
       const programsChannel = supabase
         .channel('public:programs')
@@ -126,6 +120,12 @@ export default function TableRoot() {
 
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (programs.length > 0) {
+      setLoading(false);
+    }
+  }, [programs]);
 
   return (
     <form className="flex w-full mx-auto overflow-x-auto border-l border-t">

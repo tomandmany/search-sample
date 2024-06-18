@@ -1,7 +1,7 @@
 // @filename: /components/AddRowModal.tsx
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import createProgram from "@/actions/programs/createProgram";
 import { Button } from "@/components/ui/button";
@@ -28,7 +28,6 @@ type FormDataType = {
     participantName: string;
     genre: string;
     details: string;
-    ruby: string;
 };
 
 const genres = [
@@ -66,7 +65,6 @@ export default function AddRowModal({ onClose, existingParticipants }: AddRowMod
         participantName: '',
         genre: '',
         details: '',
-        ruby: '',
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -106,7 +104,6 @@ export default function AddRowModal({ onClose, existingParticipants }: AddRowMod
         programFormData.append('participantId', formData.participantId);
         programFormData.append('genre', formData.genre);
         programFormData.append('details', formData.details);
-        programFormData.append('ruby', formData.ruby);
 
         const response = await createProgram(programFormData);
         if (response.success) {
@@ -124,9 +121,9 @@ export default function AddRowModal({ onClose, existingParticipants }: AddRowMod
             releaseMonth: '1',
             releaseDay: '1',
             eventDate: '3日',
-            startHour: '00',
+            startHour: '10',
             startMinutes: '00',
-            endHour: '00',
+            endHour: '19',
             endMinutes: '00',
             venue: '',
             message: '',
@@ -134,7 +131,6 @@ export default function AddRowModal({ onClose, existingParticipants }: AddRowMod
             participantName: '',
             genre: '',
             details: '',
-            ruby: '',
         });
     };
 
@@ -149,6 +145,26 @@ export default function AddRowModal({ onClose, existingParticipants }: AddRowMod
                     </Button>
                 </div>
                 <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                        <label className="block mb-1">団体名</label>
+                        <select
+                            name="participantName"
+                            value={formData.participantName}
+                            onChange={handleParticipantChange}
+                            className="w-full p-2 border rounded"
+                            required
+                        >
+                            <option value="">選択してください</option>
+                            {existingParticipants.map((participant) => (
+                                <option
+                                    key={participant.id}
+                                    value={participant.name!}
+                                >
+                                    {participant.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                     <div>
                         <label className="block mb-1">企画名</label>
                         <input
@@ -301,17 +317,6 @@ export default function AddRowModal({ onClose, existingParticipants }: AddRowMod
                         />
                     </div>
                     <div>
-                        <label className="block mb-1">フリガナ</label>
-                        <input
-                            type="text"
-                            name="ruby"
-                            value={formData.ruby}
-                            onChange={handleChange}
-                            className="w-full p-2 border rounded"
-                            required
-                        />
-                    </div>
-                    <div>
                         <label className="block mb-1">メッセージ</label>
                         <textarea
                             name="message"
@@ -321,26 +326,6 @@ export default function AddRowModal({ onClose, existingParticipants }: AddRowMod
                             rows={3}
                             required
                         />
-                    </div>
-                    <div>
-                        <label className="block mb-1">団体名</label>
-                        <select
-                            name="participantName"
-                            value={formData.participantName}
-                            onChange={handleParticipantChange}
-                            className="w-full p-2 border rounded"
-                            required
-                        >
-                            <option value="">選択してください</option>
-                            {existingParticipants.map((participant) => (
-                                <option
-                                    key={participant.id}
-                                    value={participant.name!}
-                                >
-                                    {participant.name}
-                                </option>
-                            ))}
-                        </select>
                     </div>
                     <div className="flex justify-end">
                         <Button type="submit" variant="default">

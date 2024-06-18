@@ -4,7 +4,6 @@
 
 import createParticipant from './createParticipant';
 import updateParticipant from './updateParticipant';
-// import deleteParticipant from './deleteParticipant';
+import deleteParticipant from './deleteParticipant';
 
-export { createParticipant, updateParticipant };
-// export { createParticipant, updateParticipant, deleteParticipant };
+export { createParticipant, updateParticipant, deleteParticipant };
