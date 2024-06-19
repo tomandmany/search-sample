@@ -128,7 +128,7 @@ export default function TableRoot() {
   }, [programs]);
 
   return (
-    <form className="flex w-full mx-auto overflow-x-auto border-l border-t">
+    <form className="flex max-w-fit mx-auto overflow-x-auto border-l border-t">
       <TableColumn className="border-r-[3px] border-gray-300">
         <TableHeader>団体名</TableHeader>
         {loading ? (
