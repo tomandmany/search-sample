@@ -3,7 +3,7 @@ import AddRowButton from "./_components/Table/AddRowButton";
 import TableRoot from "./_components/Table/TableRoot";
 
 export const metadata: Metadata = {
-    title: "参加団体情報テーブル",
+    title: "企画管理テーブル",
 };
 
 export default async function Page() {

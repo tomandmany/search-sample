@@ -58,7 +58,7 @@ export default function AddRowModal({ onClose }: AddRowModalProps) {
             <div className='w-full h-full fixed' onClick={onClose} />
             <div className="bg-white rounded-lg p-6 w-96 max-h-[80vh] overflow-y-auto absolute">
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-bold">新しい企画を追加</h2>
+                    <h2 className="text-xl font-bold">新しい団体を追加</h2>
                     <Button variant="ghost" onClick={onClose} className='p-2'>
                         <X />
                     </Button>

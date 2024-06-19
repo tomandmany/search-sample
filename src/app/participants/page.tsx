@@ -3,13 +3,13 @@ import AddRowButton from "./_components/Table/AddRowButton";
 import TableRoot from "./_components/Table/TableRoot";
 
 export const metadata: Metadata = {
-    title: "参加団体名簿",
+    title: "参加団体管理テーブル",
 };
 
 export default async function Page() {
 
     return (
-        <main className="min-h-screen items-center justify-between p-24">
+        <main className="px-[17vw] my-24">
             <TableRoot />
             <AddRowButton />
         </main>

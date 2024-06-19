@@ -91,9 +91,9 @@ export default function TableRoot() {
   }, [participants]);
   
   return (
-    <form className="flex w-fit mx-auto overflow-x-auto border-l border-t">
+    <form className="flex w-full border-l border-t">
       <TableColumn className="border-r-[3px] border-gray-300">
-        <TableHeader>団体名</TableHeader>
+        <TableHeader loading={loading}>団体名</TableHeader>
         {loading ? (
           participants.map((participant) => (
             <div key={participant.id} className=" border-b">
@@ -117,7 +117,7 @@ export default function TableRoot() {
       <div className="flex overflow-x-auto border-r max-h-max">
         {columns.map((col, colIdx) => (
           <TableColumn key={colIdx}>
-            <TableHeader>{col.header}</TableHeader>
+            <TableHeader loading={loading}>{col.header}</TableHeader>
             {loading ? (
               participants.map((participant) => (
                 <div key={participant.id} className=" border-b">
