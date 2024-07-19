@@ -39,7 +39,7 @@ export default function ProgramDropdown() {
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
         >
-            <span>企画管理テーブル</span>
+            <span>企画管理</span>
             <ChevronLeft
                 className={`transition-transform ${isMenuActive ? "-rotate-90" : "rotate-0"}`}
             />
