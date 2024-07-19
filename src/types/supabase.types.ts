@@ -29,25 +29,25 @@ export type Database = {
       }
       participantChannels: {
         Row: {
-          channelModelId: string
+          channelModelId: string | null
           createdAt: string
           id: string
-          participantId: string
-          url: string
+          participantId: string | null
+          url: string | null
         }
         Insert: {
-          channelModelId: string
+          channelModelId?: string | null
           createdAt?: string
           id?: string
-          participantId: string
-          url: string
+          participantId?: string | null
+          url?: string | null
         }
         Update: {
-          channelModelId?: string
+          channelModelId?: string | null
           createdAt?: string
           id?: string
-          participantId?: string
-          url?: string
+          participantId?: string | null
+          url?: string | null
         }
         Relationships: [
           {

@@ -1,3 +1,4 @@
+// File path: app/components/TableCell.tsx
 'use client';
 
 import { useEffect, useState, useRef, FocusEvent as ReactFocusEvent, KeyboardEvent as ReactKeyboardEvent, ChangeEvent } from 'react';
@@ -68,7 +69,7 @@ const getWidth = (text: string, font: string): number => {
 };
 
 const calculateMaxWidth = (channels: ParticipantChannel[]): number => {
-    const maxChannelWidth = Math.max(...channels.map(channel => getWidth(channel.url, '16px Arial')));
+    const maxChannelWidth = Math.max(...channels.map(channel => getWidth(channel.url!, '16px Arial')));
     return maxChannelWidth + 20; // 余白を追加
 };
 
@@ -125,7 +126,7 @@ export default function TableCell({ header, program, participant, participantCha
                 initialValue = program.isPhotographable || '不明';
                 break;
             case "channels":
-                initialValue = participantChannel?.map((channel) => channel.url) || '';
+                initialValue = participantChannel?.map((channel) => channel.url!) || '';
                 break;
             default:
                 initialValue = (program[header as keyof Program] as string) || '';
@@ -235,7 +236,7 @@ export default function TableCell({ header, program, participant, participantCha
 
         if (response.success) {
             newChannel.id = response.data?.id!; // 返された新しいIDを設定
-            setChannels([...channels, newChannel]);
+            setChannels((prevChannels) => [...prevChannels, newChannel]);
             console.log('Channel created successfully');
         } else {
             console.error('Failed to create channel:', response.error);
@@ -259,11 +260,16 @@ export default function TableCell({ header, program, participant, participantCha
     };
 
     const deleteChannel = async (channelId: string) => {
+        if (!channelId) {
+            console.error('Channel ID is undefined');
+            return;
+        }
         setLoading(true); // 削除開始時にローディング状態に設定
+        console.log(channelId);
         const response = await deleteParticipantChannel(channelId);
 
         if (response.success) {
-            setChannels(channels.filter(channel => channel.id !== channelId));
+            setChannels((prevChannels) => prevChannels.filter(channel => channel.id !== channelId));
             console.log('Channel deleted successfully');
         } else {
             console.error('Failed to delete channel:', response.error);
@@ -320,17 +326,30 @@ export default function TableCell({ header, program, participant, participantCha
     let content;
     switch (header) {
         case "participantName":
-            content = (
-                <input
-                    type="text"
-                    value={value}
-                    onChange={handleChange}
-                    className="cursor-pointer rounded px-2 py-1 hover:bg-gray-200 focus:bg-inherit focus:hover:bg-inherit focus:cursor-text"
-                    style={{ width: `${inputWidth}px` }}
-                    onBlur={handleBlur}
-                    onKeyDown={handleKeyDown}
-                />
-            );
+            if (!value) {
+                content = (
+                    <input
+                        type="text"
+                        value={value}
+                        onChange={handleChange}
+                        className="cursor-pointer rounded px-2 py-1 hover:bg-gray-200 focus:bg-inherit focus:hover:bg-inherit focus:cursor-text min-w-full"
+                        onBlur={handleBlur}
+                        onKeyDown={handleKeyDown}
+                    />
+                );
+            } else {
+                content = (
+                    <input
+                        type="text"
+                        value={value}
+                        onChange={handleChange}
+                        className="cursor-pointer rounded px-2 py-1 hover:bg-gray-200 focus:bg-inherit focus:hover:bg-inherit focus:cursor-text"
+                        style={{ width: `${inputWidth}px` }}
+                        onBlur={handleBlur}
+                        onKeyDown={handleKeyDown}
+                    />
+                );
+            }
             break;
         case "isPhotographable":
             content = (
@@ -528,7 +547,7 @@ export default function TableCell({ header, program, participant, participantCha
                                             <span className='ml-2'>:</span>
                                             <input
                                                 type="text"
-                                                value={channel.url}
+                                                value={channel.url!}
                                                 onChange={(e) => {
                                                     const newUrl = e.target.value;
                                                     setChannels(channels.map((ch, idx) => idx === index ? { ...ch, url: newUrl } : ch));
@@ -536,7 +555,7 @@ export default function TableCell({ header, program, participant, participantCha
                                                     setInputWidth(maxWidth);
                                                 }}
                                                 className="cursor-pointer rounded px-2 py-1 hover:bg-gray-200 focus:bg-inherit focus:hover:bg-inherit focus:cursor-text"
-                                                onBlur={(e) => updateChannel(channel.id, e.target.value)}
+                                                onBlur={(e) => updateChannel(channel.id!, e.target.value)}
                                                 onKeyDown={handleKeyDown}
                                                 style={{ width: `${inputWidth}px` }}
                                             />
@@ -562,7 +581,7 @@ export default function TableCell({ header, program, participant, participantCha
                                                 variant="ghost"
                                                 className="p-2 w-[36px]"
                                                 type='button'
-                                                onClick={() => deleteChannel(channel.id)}
+                                                onClick={() => deleteChannel(channel.id!)}
                                             >
                                                 <Trash2 className="text-red-600" />
                                             </Button>
@@ -703,7 +722,7 @@ export default function TableCell({ header, program, participant, participantCha
                     <input
                         type="text"
                         onChange={handleChange}
-                        className="cursor-pointer rounded px-2 py-1 hover:bg-gray-200 focus:bg-inherit focus:hover:bg-inherit focus:cursor-text"
+                        className="cursor-pointer rounded px-2 py-1 hover:bg-gray-200 focus:bg-inherit focus:hover:bg-inherit focus:cursor-text min-w-full"
                         onBlur={handleBlur}
                         onKeyDown={handleKeyDown}
                         placeholder='入力してください。'

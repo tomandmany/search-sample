@@ -6,8 +6,13 @@ interface Response {
   error?: any;
 }
 
-export default async function deleteProgram(id: string): Promise<Response> {
-  const { error } = await supabase.from('programs').delete().eq('id', id);
+export default async function deleteProgram(
+  id: string
+): Promise<Response> {
+  const { error } = await supabase
+    .from('programs')
+    .delete()
+    .eq('id', id);
 
   if (error) {
     console.error('Error deleting Program:', error);

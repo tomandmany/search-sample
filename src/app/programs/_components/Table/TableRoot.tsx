@@ -10,6 +10,7 @@ import { getPrograms } from "@/data/programs";
 import { getParticipants } from "@/data/participants";
 import { getParticipantChannels } from "@/data/participantChannels";
 import { supabase } from "@/lib/supabaseClient";
+import { usePathname } from "next/navigation";
 
 // 各列のヘッダーとプロパティ名のマッピング
 const columns = [
@@ -28,7 +29,29 @@ const columns = [
   { header: "公開日", property: "releaseDate" },
 ];
 
+const mapPathnameToVenue = (pathname: string): string | undefined => {
+  switch (pathname) {
+    case '/programs/main':
+      return 'メインステージ';
+    case '/programs/performance':
+      return 'パフォーマンスエリア';
+    case '/programs/entrance':
+      return 'エントランスエリア';
+    case '/programs/booth':
+      return '模擬店';
+    case '/programs/room':
+      return '教室';
+    default:
+      return undefined;
+  }
+};
+
 export default function TableRoot() {
+  const pathname = usePathname();
+  console.log('Current pathname:', pathname); // 追加
+  const venue = mapPathnameToVenue(pathname);
+  console.log('Mapped venue:', venue); // 追加
+
   const [programs, setPrograms] = useState<Program[]>([]);
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [participantChannels, setParticipantChannels] = useState<ParticipantChannel[]>([]);
@@ -88,7 +111,7 @@ export default function TableRoot() {
           );
         })
         .subscribe();
-      
+
       const participantChannelsChannel = supabase
         .channel('public:participantChannels')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'participantChannels' }, (payload) => {
@@ -128,31 +151,35 @@ export default function TableRoot() {
   }, [programs]);
 
   return (
-    <form className="flex max-w-fit mx-auto overflow-x-auto border-l border-t">
+    <div className="flex max-w-fit mx-auto overflow-x-auto border-l border-t shadow-md">
       <TableColumn className="border-r-[3px] border-gray-300">
         <TableHeader>団体名</TableHeader>
         {loading ? (
-          programs.map((program) => (
-            <div key={program.id} className="border-b">
-              <div className="w-[334px] h-[204px] bg-gray-300 animate-pulse m-4" />
-            </div>
-          ))
+          programs
+            .filter((program) => !venue || program.venue === venue)
+            .map((program) => (
+              <div key={program.id} className="border-b">
+                <div className="w-[334px] h-[204px] bg-gray-300 animate-pulse m-4" />
+              </div>
+            ))
         ) : (
-          programs.map((program) => {
-            const currentParticipant = participants.find((participant) => participant.id === program.participantId);
-            const currentParticipantChannels = participantChannels.filter((participantChannel) => participantChannel.participantId === currentParticipant?.id);
-            return (
-              <TableCell
-                key={program.id}
-                header="participantName"
-                program={program}
-                participant={currentParticipant!}
-                participantChannel={currentParticipantChannels}
-                minHeight={minHeight}
-                setMinHeight={setMinHeight}
-              />
-            );
-          })
+          programs
+            .filter((program) => !venue || program.venue === venue)
+            .map((program) => {
+              const currentParticipant = participants.find((participant) => participant.id === program.participantId);
+              const currentParticipantChannels = participantChannels.filter((participantChannel) => participantChannel.participantId === currentParticipant?.id);
+              return (
+                <TableCell
+                  key={program.id}
+                  header="participantName"
+                  program={program}
+                  participant={currentParticipant!}
+                  participantChannel={currentParticipantChannels}
+                  minHeight={minHeight}
+                  setMinHeight={setMinHeight}
+                />
+              );
+            })
         )}
       </TableColumn>
       <div className="flex overflow-x-auto border-r max-h-max">
@@ -160,31 +187,35 @@ export default function TableRoot() {
           <TableColumn key={colIdx}>
             <TableHeader>{col.header}</TableHeader>
             {loading ? (
-              programs.map((program) => (
-                <div key={program.id} className="border-b">
-                  <div className="w-[334px] h-[204px] bg-gray-300 animate-pulse m-4" />
-                </div>
-              ))
+              programs
+                .filter((program) => !venue || program.venue === venue)
+                .map((program) => (
+                  <div key={program.id} className="border-b">
+                    <div className="w-[334px] h-[204px] bg-gray-300 animate-pulse m-4" />
+                  </div>
+                ))
             ) : (
-              programs.map((program) => {
-                const currentParticipant = participants.find((participant) => participant.id === program.participantId);
-                const currentParticipantChannels = participantChannels.filter((participantChannel) => participantChannel.participantId === currentParticipant?.id);
-                return (
-                  <TableCell
-                    key={program.id + col.property}
-                    header={col.property}
-                    program={program}
-                    participant={currentParticipant!}
-                    participantChannel={currentParticipantChannels}
-                    minHeight={minHeight}
-                    setMinHeight={setMinHeight}
-                  />
-                );
-              })
+              programs
+                .filter((program) => !venue || program.venue === venue)
+                .map((program) => {
+                  const currentParticipant = participants.find((participant) => participant.id === program.participantId);
+                  const currentParticipantChannels = participantChannels.filter((participantChannel) => participantChannel.participantId === currentParticipant?.id);
+                  return (
+                    <TableCell
+                      key={program.id + col.property}
+                      header={col.property}
+                      program={program}
+                      participant={currentParticipant!}
+                      participantChannel={currentParticipantChannels}
+                      minHeight={minHeight}
+                      setMinHeight={setMinHeight}
+                    />
+                  );
+                })
             )}
           </TableColumn>
         ))}
       </div>
-    </form>
+    </div>
   );
 }

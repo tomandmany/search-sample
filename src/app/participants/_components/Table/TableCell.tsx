@@ -52,7 +52,7 @@ const getWidth = (text: string, font: string): number => {
 };
 
 const calculateMaxWidth = (channels: ParticipantChannel[]): number => {
-    const maxChannelWidth = Math.max(...channels.map(channel => getWidth(channel.url, '16px Arial')));
+    const maxChannelWidth = Math.max(...channels.map(channel => getWidth(channel.url!, '16px Arial')));
     return maxChannelWidth + 20; // 余白を追加
 };
 
@@ -225,7 +225,7 @@ export default function TableCell({ header, participant, participantChannels, se
                                             <span className='ml-2'>:</span>
                                             <input
                                                 type="text"
-                                                value={channel.url}
+                                                value={channel.url!}
                                                 onChange={(e) => {
                                                     const newUrl = e.target.value;
                                                     setChannels(channels.map((ch, idx) => idx === index ? { ...ch, url: newUrl } : ch));

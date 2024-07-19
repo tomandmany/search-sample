@@ -91,7 +91,7 @@ export default function TableRoot() {
   }, [participants]);
   
   return (
-    <form className="flex max-w-fit border-l border-t">
+    <div className="flex max-w-fit border-l border-t shadow-md">
       <TableColumn className="border-r-[3px] border-gray-300">
         <TableHeader loading={loading}>団体名</TableHeader>
         {loading ? (
@@ -142,6 +142,6 @@ export default function TableRoot() {
           </TableColumn>
         ))}
       </div>
-    </form>
+    </div>
   );
 }
