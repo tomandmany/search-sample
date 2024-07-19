@@ -1,6 +1,4 @@
-// @filename: /components/TableRoot.tsx
-
-'use client';
+'use client'
 
 import { useEffect, useState } from "react";
 import TableCell from "./TableCell";
@@ -48,9 +46,7 @@ const mapPathnameToVenue = (pathname: string): string | undefined => {
 
 export default function TableRoot() {
   const pathname = usePathname();
-  console.log('Current pathname:', pathname); // 追加
   const venue = mapPathnameToVenue(pathname);
-  console.log('Mapped venue:', venue); // 追加
 
   const [programs, setPrograms] = useState<Program[]>([]);
   const [participants, setParticipants] = useState<Participant[]>([]);
@@ -150,71 +146,66 @@ export default function TableRoot() {
     }
   }, [programs]);
 
+  const renderCells = (program: Program, col: { header: string, property: string }) => {
+    const currentParticipant = participants.find((participant) => participant.id === program.participantId);
+    const currentParticipantChannels = participantChannels.filter((participantChannel) => participantChannel.participantId === currentParticipant?.id);
+    return (
+      <TableCell
+        key={program.id + col.property}
+        header={col.property}
+        program={program}
+        participant={currentParticipant!}
+        participantChannel={currentParticipantChannels}
+        minHeight={minHeight}
+        setMinHeight={setMinHeight}
+      />
+    );
+  };
+
+  const filteredPrograms = programs.filter((program) => program && (!venue || program.venue === venue));
+
   return (
     <div className="flex max-w-fit mx-auto overflow-x-auto border-l border-t shadow-md">
       <TableColumn className="border-r-[3px] border-gray-300">
-        <TableHeader>団体名</TableHeader>
-        {loading ? (
-          programs
-            .filter((program) => !venue || program.venue === venue)
-            .map((program) => (
-              <div key={program.id} className="border-b">
-                <div className="w-[334px] h-[204px] bg-gray-300 animate-pulse m-4" />
-              </div>
-            ))
-        ) : (
-          programs
-            .filter((program) => !venue || program.venue === venue)
-            .map((program) => {
-              const currentParticipant = participants.find((participant) => participant.id === program.participantId);
-              const currentParticipantChannels = participantChannels.filter((participantChannel) => participantChannel.participantId === currentParticipant?.id);
-              return (
-                <TableCell
-                  key={program.id}
-                  header="participantName"
-                  program={program}
-                  participant={currentParticipant!}
-                  participantChannel={currentParticipantChannels}
-                  minHeight={minHeight}
-                  setMinHeight={setMinHeight}
-                />
-              );
-            })
-        )}
+        {filteredPrograms.length > 0 && <TableHeader>団体名</TableHeader>}
+        {filteredPrograms.map((program) => {
+          const currentParticipant = participants.find((participant) => participant.id === program.participantId);
+          return (
+            <TableCell
+              key={program.id}
+              header="participantName"
+              program={program}
+              participant={currentParticipant!}
+              participantChannel={[]}
+              minHeight={minHeight}
+              setMinHeight={setMinHeight}
+            />
+          );
+        })}
       </TableColumn>
       <div className="flex overflow-x-auto border-r max-h-max">
-        {columns.map((col, colIdx) => (
-          <TableColumn key={colIdx}>
-            <TableHeader>{col.header}</TableHeader>
-            {loading ? (
-              programs
-                .filter((program) => !venue || program.venue === venue)
-                .map((program) => (
+        {columns.map((col, colIdx) => {
+          // const columnFilteredPrograms = filteredPrograms.filter((program) => program[col.property] !== undefined && program[col.property] !== null);
+          const columnFilteredPrograms = filteredPrograms.filter((program) =>
+            (col.property as keyof Program) in program &&
+            program[col.property as keyof Program] !== undefined &&
+            program[col.property as keyof Program] !== null
+          );
+          return (
+            <TableColumn key={colIdx}>
+              {columnFilteredPrograms.length > 0 && <TableHeader>{col.header}</TableHeader>}
+              {loading ? (
+                filteredPrograms.map((program) => (
                   <div key={program.id} className="border-b">
                     <div className="w-[334px] h-[204px] bg-gray-300 animate-pulse m-4" />
                   </div>
                 ))
-            ) : (
-              programs
-                .filter((program) => !venue || program.venue === venue)
-                .map((program) => {
-                  const currentParticipant = participants.find((participant) => participant.id === program.participantId);
-                  const currentParticipantChannels = participantChannels.filter((participantChannel) => participantChannel.participantId === currentParticipant?.id);
-                  return (
-                    <TableCell
-                      key={program.id + col.property}
-                      header={col.property}
-                      program={program}
-                      participant={currentParticipant!}
-                      participantChannel={currentParticipantChannels}
-                      minHeight={minHeight}
-                      setMinHeight={setMinHeight}
-                    />
-                  );
-                })
-            )}
-          </TableColumn>
-        ))}
+              ) : (
+                columnFilteredPrograms.map((program) => renderCells(program, col))
+              )}
+            </TableColumn>
+          );
+        })}
       </div>
     </div>
   );

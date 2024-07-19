@@ -10,7 +10,7 @@ export default async function Home() {
   const participants = await getParticipants();
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24 gap-20 flex-wrap">
+    <main className="flex flex-col items-center justify-between p-24 gap-20 flex-wrap">
       {programs.map((program) => {
         const filteredParticipant = participants.find((participant) => participant.id === program.participantId);
         return (
