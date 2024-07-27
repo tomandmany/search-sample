@@ -3,7 +3,13 @@
 
 import { getParticipants } from "@/data/participants";
 import { getPrograms } from "@/data/programs";
+import { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "検索ページ",
+  description: "検索ページのサンプルです。",
+};
 
 export default async function Home() {
   const programs = await getPrograms();

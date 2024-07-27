@@ -48,10 +48,7 @@ export default function ProgramDropdown() {
                 onMouseEnter={handleSubmenuMouseEnter}
                 onMouseLeave={handleSubmenuMouseLeave}
             >
-                <ProgramDropdownItem link="" name="全部門" handleClick={handleLinkClick} />
-                <ProgramDropdownItem link="entrance" name="エントランスエリア" handleClick={handleLinkClick} />
-                <ProgramDropdownItem link="main" name="メインステージ" handleClick={handleLinkClick} />
-                <ProgramDropdownItem link="performance" name="パフォーマンスエリア" handleClick={handleLinkClick} />
+                <ProgramDropdownItem link="outstage" name="屋外ステージ" handleClick={handleLinkClick} />
                 <ProgramDropdownItem link="booth" name="模擬店" handleClick={handleLinkClick} />
                 <ProgramDropdownItem link="room" name="教室" handleClick={handleLinkClick} />
             </div>

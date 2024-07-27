@@ -3,7 +3,8 @@ import AddRowButton from "./_components/Table/AddRowButton";
 import TableRoot from "./_components/Table/TableRoot";
 
 export const metadata: Metadata = {
-    title: "企画管理テーブル",
+    title: "企画管理ページ",
+    description: "検索ページのサンプルです。",
 };
 
 export default async function Page() {

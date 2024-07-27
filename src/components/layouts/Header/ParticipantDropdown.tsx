@@ -46,10 +46,7 @@ export default function ParticipantDropdown() {
                 onMouseEnter={handleSubmenuMouseEnter}
                 onMouseLeave={handleSubmenuMouseLeave}
             >
-                <ParticipantDropdownItem link="" name="全部門" handleClick={handleLinkClick} />
-                <ParticipantDropdownItem link="entrance" name="エントランスエリア" handleClick={handleLinkClick} />
-                <ParticipantDropdownItem link="main" name="メインステージ" handleClick={handleLinkClick} />
-                <ParticipantDropdownItem link="performance" name="パフォーマンスエリア" handleClick={handleLinkClick} />
+                <ParticipantDropdownItem link="outstage" name="屋外ステージ" handleClick={handleLinkClick} />
                 <ParticipantDropdownItem link="booth" name="模擬店" handleClick={handleLinkClick} />
                 <ParticipantDropdownItem link="room" name="教室" handleClick={handleLinkClick} />
             </div>

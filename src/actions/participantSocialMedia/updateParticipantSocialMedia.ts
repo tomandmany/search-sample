@@ -1,49 +1,52 @@
-'use server'
+'use server';
 import { supabase } from '@/lib/supabaseClient';
 import { TablesUpdate } from '@/types/supabase.types';
 import { revalidatePath } from 'next/cache';
 
-interface Response<T> {
+interface Response {
   success: boolean;
-  data?: T | null;
+  data?: TablesUpdate<'participantSocialMedias'> | null;
   error?: any;
 }
 
-export default async function updateProgram(
+export default async function updateParticipantSocialMedia(
   formData: FormData,
   department: 'booth' | 'outstage' | 'room'
-): Promise<Response<TablesUpdate<typeof tableName>>> {
+): Promise<Response> {
   const id = formData.get('id') as string;
-  const tableName = `${department}Programs` as const;
 
   if (!id) {
     console.error('No ID provided');
     return { success: false, error: 'No ID provided', data: null };
   }
 
-  const updatedProgram: Partial<TablesUpdate<typeof tableName>> = {};
+  const updatedParticipantSocialMedia: TablesUpdate<'participantSocialMedias'> =
+    {};
   formData.forEach((value, key) => {
     if (key !== 'id') {
-      updatedProgram[key as keyof TablesUpdate<typeof tableName>] = value as any;
+      updatedParticipantSocialMedia[
+        key as keyof TablesUpdate<'participantSocialMedias'>
+      ] = value as any;
     }
   });
 
-  console.log('Updating table:', tableName);
-  console.log('Updated data:', updatedProgram);
+  console.log(
+    'Updating Participant Social Media:',
+    updatedParticipantSocialMedia
+  );
 
   const { data, error } = await supabase
-    .from(tableName)
-    .update(updatedProgram)
+    .from('participantSocialMedias')
+    .update(updatedParticipantSocialMedia)
     .eq('id', id)
-    .select()
     .single();
 
   if (error) {
-    console.error('Error updating program:', error);
+    console.error('Error updating participantSocialMedia:', error);
     return { success: false, error, data: null };
   }
 
-  console.log('Update response data:', data);
+  console.log('Updated data:', data);
 
   revalidatePath(`/programs/${department}`);
 
