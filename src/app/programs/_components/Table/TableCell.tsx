@@ -141,7 +141,7 @@ export default function TableCell({
                 if (columnKey) {
                     formData.append(columnKey, newValue);
                 }
-                const response = await updateOutstageProgram(formData);
+                const response = await updateProgram(formData);
                 if (!response.success) {
                     console.error('Failed to update program:', response.error);
                     setError('Failed to update program');
