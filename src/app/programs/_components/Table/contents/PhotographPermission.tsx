@@ -1,32 +1,36 @@
 // src/components/contents/PhotographPermission.tsx
 'use client';
 
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Circle, X } from 'lucide-react';
 import updateProgram from '@/actions/programs/updateProgram';
 import IconQuestion from '../../icons/IconQuestion';
+import ProgramContext from '@/app/programs/contexts/ProgramContext';
 
 type PhotographPermissionProps = {
-    programId?: string;
-    value: string;
-    department?: 'booth' | 'outstage' | 'room';
+    programId: string;
+    value: UnionProgram['photographPermission'];
     setHasUnsavedChanges: (value: boolean) => void;
-    setInputValue: (value: string) => void;
 };
 
 export default function PhotographPermission({
     programId,
-    value,
-    department,
+    value: initialValue,
     setHasUnsavedChanges,
-    setInputValue
 }: PhotographPermissionProps) {
+    const context = useContext(ProgramContext);
+    if (!context) {
+        throw new Error('TableCell must be used within a Provider');
+    }
+    const { target } = context;
+
+    const [value, setValue] = useState<string>(initialValue);
     const [popoverOpen, setPopoverOpen] = useState<boolean>(false);
 
     const handleIconChange = async (newValue: string) => {
-        setInputValue(newValue);
+        setValue(newValue);
         setPopoverOpen(false);
 
         const formData = new FormData();
@@ -34,8 +38,8 @@ export default function PhotographPermission({
             formData.append('id', programId);
         }
         formData.append('photographPermission', newValue);
-        if (department) {
-            const response = await updateProgram(formData, department);
+        if (target) {
+            const response = await updateProgram(formData, target);
             setHasUnsavedChanges(false);
             if (!response.success) {
                 console.error('Failed to update program:', response.error);

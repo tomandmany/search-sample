@@ -3,15 +3,18 @@
 
 import { supabase } from '@/lib/supabaseClient';
 
-interface Response {
+interface Response<T> {
   success: boolean;
   error?: any;
 }
 
 export default async function deleteProgramImage(
   id: string,
-  fileName: string
-): Promise<Response> {
+  fileName: string,
+  target: 'booth' | 'outstage' | 'room'
+): Promise<Response<typeof tableName>> {
+  const tableName = `${target}Programs` as const;
+
   if (!id || !fileName) {
     console.error('No ID or fileName provided');
     return { success: false, error: 'No ID or fileName provided' };
@@ -21,7 +24,6 @@ export default async function deleteProgramImage(
   const { error: removeError } = await supabase.storage
     .from('programImages')
     .remove([filePath]);
-    // .remove(["badc83ab-5728-4a18-80a0-559c64c0ba0e/aaa.png"]);
 
   console.log(`Deleting file: ${filePath}`);
 
@@ -31,8 +33,8 @@ export default async function deleteProgramImage(
   }
 
   const { data, error: updateError } = await supabase
-    .from('programs')
-    .update({ image: null })
+    .from(tableName)
+    .update({ programImage: null })
     .eq('id', id)
     .single();
 

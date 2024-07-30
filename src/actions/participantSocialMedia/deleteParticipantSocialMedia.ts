@@ -9,7 +9,7 @@ interface Response {
 
 export default async function deleteParticipantSocialMedia(
   id: string,
-  department: 'booth' | 'outstage' | 'room'
+  target?: Target
 ): Promise<Response> {
   console.log('Deleting Participant Social Media ID:', id);
 
@@ -25,7 +25,7 @@ export default async function deleteParticipantSocialMedia(
 
   console.log('Deleted Participant Social Media ID:', id);
 
-  revalidatePath(`/programs/${department}`);
+  revalidatePath(`/programs/${target}`);
 
   return { success: true };
 }

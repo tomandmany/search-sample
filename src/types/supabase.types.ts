@@ -19,9 +19,9 @@ export type Database = {
           eventDate: Database["public"]["Enums"]["eventDate"] | null
           genre: Database["public"]["Enums"]["genre"] | null
           id: string
-          image: string | null
           participantId: string | null
           photographPermission: Database["public"]["Enums"]["photographPermission"]
+          programImage: string | null
           programName: string | null
           releaseDay: string | null
           releaseMonth: string | null
@@ -38,9 +38,9 @@ export type Database = {
           eventDate?: Database["public"]["Enums"]["eventDate"] | null
           genre?: Database["public"]["Enums"]["genre"] | null
           id?: string
-          image?: string | null
           participantId?: string | null
           photographPermission?: Database["public"]["Enums"]["photographPermission"]
+          programImage?: string | null
           programName?: string | null
           releaseDay?: string | null
           releaseMonth?: string | null
@@ -57,9 +57,9 @@ export type Database = {
           eventDate?: Database["public"]["Enums"]["eventDate"] | null
           genre?: Database["public"]["Enums"]["genre"] | null
           id?: string
-          image?: string | null
           participantId?: string | null
           photographPermission?: Database["public"]["Enums"]["photographPermission"]
+          programImage?: string | null
           programName?: string | null
           releaseDay?: string | null
           releaseMonth?: string | null
@@ -97,98 +97,47 @@ export type Database = {
       }
       outstagePrograms: {
         Row: {
-          catchphrase: string | null
+          catchphrase: string
           createdAt: string
-          details: string | null
-          endHour: string | null
-          endMinutes: string | null
-          eventDate: Database["public"]["Enums"]["eventDate"] | null
-          genre: Database["public"]["Enums"]["genre"] | null
+          details: string
+          eventDate: Database["public"]["Enums"]["eventDate"]
+          genre: Database["public"]["Enums"]["genre"]
           id: string
-          image: string | null
-          participantId: string | null
+          participantId: string
           photographPermission: Database["public"]["Enums"]["photographPermission"]
-          programName: string | null
-          startHour: string | null
-          startMinutes: string | null
-          venue: Database["public"]["Enums"]["venue"] | null
+          programImage: string | null
+          programName: string
+          venue: Database["public"]["Enums"]["venue"]
         }
         Insert: {
-          catchphrase?: string | null
+          catchphrase: string
           createdAt?: string
-          details?: string | null
-          endHour?: string | null
-          endMinutes?: string | null
-          eventDate?: Database["public"]["Enums"]["eventDate"] | null
-          genre?: Database["public"]["Enums"]["genre"] | null
+          details: string
+          eventDate: Database["public"]["Enums"]["eventDate"]
+          genre: Database["public"]["Enums"]["genre"]
           id?: string
-          image?: string | null
-          participantId?: string | null
-          photographPermission?: Database["public"]["Enums"]["photographPermission"]
-          programName?: string | null
-          startHour?: string | null
-          startMinutes?: string | null
-          venue?: Database["public"]["Enums"]["venue"] | null
+          participantId?: string
+          photographPermission: Database["public"]["Enums"]["photographPermission"]
+          programImage?: string | null
+          programName: string
+          venue: Database["public"]["Enums"]["venue"]
         }
         Update: {
-          catchphrase?: string | null
+          catchphrase?: string
           createdAt?: string
-          details?: string | null
-          endHour?: string | null
-          endMinutes?: string | null
-          eventDate?: Database["public"]["Enums"]["eventDate"] | null
-          genre?: Database["public"]["Enums"]["genre"] | null
+          details?: string
+          eventDate?: Database["public"]["Enums"]["eventDate"]
+          genre?: Database["public"]["Enums"]["genre"]
           id?: string
-          image?: string | null
-          participantId?: string | null
+          participantId?: string
           photographPermission?: Database["public"]["Enums"]["photographPermission"]
-          programName?: string | null
-          startHour?: string | null
-          startMinutes?: string | null
-          venue?: Database["public"]["Enums"]["venue"] | null
+          programImage?: string | null
+          programName?: string
+          venue?: Database["public"]["Enums"]["venue"]
         }
         Relationships: [
           {
             foreignKeyName: "outstagePrograms_participantId_fkey"
-            columns: ["participantId"]
-            isOneToOne: false
-            referencedRelation: "participants"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      participantChannels: {
-        Row: {
-          channelModelId: string | null
-          createdAt: string
-          id: string
-          participantId: string | null
-          url: string | null
-        }
-        Insert: {
-          channelModelId?: string | null
-          createdAt?: string
-          id?: string
-          participantId?: string | null
-          url?: string | null
-        }
-        Update: {
-          channelModelId?: string | null
-          createdAt?: string
-          id?: string
-          participantId?: string | null
-          url?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "participantChannels_channelModelId_fkey"
-            columns: ["channelModelId"]
-            isOneToOne: false
-            referencedRelation: "channelModels"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "participantChannels_participantId_fkey"
             columns: ["participantId"]
             isOneToOne: false
             referencedRelation: "participants"
@@ -219,39 +168,39 @@ export type Database = {
       }
       participantSocialMedias: {
         Row: {
-          channelModelId: string
           createdAt: string
           id: string
           participantId: string
+          socialMediaModelId: string
           url: string
         }
         Insert: {
-          channelModelId: string
           createdAt?: string
           id?: string
           participantId: string
+          socialMediaModelId: string
           url: string
         }
         Update: {
-          channelModelId?: string
           createdAt?: string
           id?: string
           participantId?: string
+          socialMediaModelId?: string
           url?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "participantSocialMedias_channelModelId_fkey"
-            columns: ["channelModelId"]
-            isOneToOne: false
-            referencedRelation: "channelModels"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "participantSocialMedias_participantId_fkey"
             columns: ["participantId"]
             isOneToOne: false
             referencedRelation: "participants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "participantSocialMedias_socialMediaModelId_fkey"
+            columns: ["socialMediaModelId"]
+            isOneToOne: false
+            referencedRelation: "channelModels"
             referencedColumns: ["id"]
           },
         ]
@@ -334,9 +283,9 @@ export type Database = {
           eventDate: Database["public"]["Enums"]["eventDate"] | null
           genre: Database["public"]["Enums"]["genre"] | null
           id: string
-          image: string | null
           participantId: string | null
           photographPermission: Database["public"]["Enums"]["photographPermission"]
+          programImage: string | null
           programName: string | null
           releaseDay: string | null
           releaseMonth: string | null
@@ -353,9 +302,9 @@ export type Database = {
           eventDate?: Database["public"]["Enums"]["eventDate"] | null
           genre?: Database["public"]["Enums"]["genre"] | null
           id?: string
-          image?: string | null
           participantId?: string | null
           photographPermission?: Database["public"]["Enums"]["photographPermission"]
+          programImage?: string | null
           programName?: string | null
           releaseDay?: string | null
           releaseMonth?: string | null
@@ -372,9 +321,9 @@ export type Database = {
           eventDate?: Database["public"]["Enums"]["eventDate"] | null
           genre?: Database["public"]["Enums"]["genre"] | null
           id?: string
-          image?: string | null
           participantId?: string | null
           photographPermission?: Database["public"]["Enums"]["photographPermission"]
+          programImage?: string | null
           programName?: string | null
           releaseDay?: string | null
           releaseMonth?: string | null
@@ -391,6 +340,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      sampleDnd: {
+        Row: {
+          columnsOrder: number
+          content: string
+          createdAt: string
+          id: string
+          rowsOrder: number
+        }
+        Insert: {
+          columnsOrder: number
+          content: string
+          createdAt?: string
+          id?: string
+          rowsOrder: number
+        }
+        Update: {
+          columnsOrder?: number
+          content?: string
+          createdAt?: string
+          id?: string
+          rowsOrder?: number
+        }
+        Relationships: []
       }
       socialMediaModels: {
         Row: {

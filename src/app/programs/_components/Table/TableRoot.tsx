@@ -1,94 +1,96 @@
-// src/components/TableRoot.tsx
-'use client'
+// @filename: /src/components/TableRoot.tsx
+'use client';
 
-import { useContext, useState } from "react";
-import { ProgramContextType } from "@/app/programs/contexts/ProgramContext";
-import TableColumn from "./TableColumn";
-import TableHeader from "./TableHeader";
-import TableCell from "./TableCell";
-import { participantColumns } from "@/data/columns";
+import TableColumn from './TableColumn';
+import TableHeader from './TableHeader';
+import TableCell from './TableCell';
+import { participantColumns, boothProgramColumns, outstageProgramColumns, roomProgramColumns } from '@/data/columns';
+import { useContext, useEffect, useState } from 'react';
+import ProgramContext from '@/app/programs/contexts/ProgramContext';
 
 type TableRootProps = {
-  programContext: React.Context<ProgramContextType | undefined>;
-  programColumns: { header: string; property: string }[];
-  department: 'booth' | 'outstage' | 'room';
+  programs: UnionProgram[];
+  participants: Participant[];
+  participantSocialMedias: ParticipantSocialMedia[];
+  target?: Target;
 };
 
-type UnionProgram = {
-  [key: string]: any; // あなたの実際のUnionProgram型を定義してください
-};
-
-function hasProperty<T extends object, K extends PropertyKey>(obj: T, key: K): obj is T & Record<K, unknown> {
-  return key in obj;
-}
-
-export default function TableRoot({ programContext, programColumns, department }: TableRootProps) {
-  const [rowHeights, setRowHeights] = useState<{ [key: string]: number }>({});
-
-  const context = useContext(programContext);
+export default function TableRoot({ programs, participants, participantSocialMedias, target }: TableRootProps) {
+  const context = useContext(ProgramContext);
   if (!context) {
-    throw new Error('TableRoot must be used within a Provider');
+    throw new Error('TableCell must be used within a Provider');
   }
-  const { programs, participants } = context;
+  const { setTarget } = context;
 
-  const handleSetRowHeight = (programId: string, height: number) => {
-    setRowHeights((prev) => ({ ...prev, [programId]: height }));
-  };
+  const [programColumns, setProgramColumns] = useState<{ label: string; key: string }[]>([]);
+
+  useEffect(() => {
+    target !== 'participant' && setTarget(target!);
+
+    switch (target) {
+      case 'booth':
+        setProgramColumns(boothProgramColumns);
+        break;
+      case 'outstage':
+        setProgramColumns(outstageProgramColumns);
+        break;
+      case 'room':
+        setProgramColumns(roomProgramColumns);
+        break;
+      default:
+        setProgramColumns([]);
+        break;
+    }
+  }, [target, setTarget]);
 
   return (
-    <div className="flex max-w-fit mx-auto overflow-x-auto border-x border-t shadow-md hidden-scrollbar">
-      {participantColumns.map((col, colIdx) => (
-        <TableColumn key={colIdx} isFixed={col.header === '団体名'}>
-          <TableHeader>{col.header}</TableHeader>
-          {programs.map((program: UnionProgram) => {
-            const currentParticipant = participants.find((participant) => participant.id === program.participantId);
-            if (!currentParticipant) {
-              return null;
+    <div className="flex max-w-fit mx-auto overflow-x-auto border-x border-t shadow-md rounded-md hidden-scrollbar">
+      {
+        participantColumns.map((column) => (
+          <TableColumn key={column.key} isFixed={column.key === 'participantName'}>
+            <TableHeader>{column.label}</TableHeader>
+            {
+              programs.map((program) => {
+                const filteredParticipant = participants.find((participant) => participant.id === program.participantId)!;
+                const filteredParticipantSocialMedias = participantSocialMedias.filter((participantSocialMedia) => participantSocialMedia.participantId === filteredParticipant.id);
+                return (
+                  <TableCell
+                    key={`${program.id}-${column.key}-participant`}
+                    program={program}
+                    participant={filteredParticipant}
+                    participantSocialMedias={filteredParticipantSocialMedias}
+                    columnKey={column.key}
+                    isParticipantColumn={true}
+                  />
+                );
+              })
             }
-            const value = currentParticipant[col.property as keyof typeof currentParticipant] as string;
-            return (
-              <TableCell
-                key={`${program.id}-${colIdx}`}
-                header={col.header}
-                value={value}
-                participantId={currentParticipant.id}
-                department={department}
-                rowHeight={rowHeights[program.id] || 0}
-                setRowHeight={(height: number) => handleSetRowHeight(program.id, height)}
-              />
-            );
-          })}
-        </TableColumn>
-      ))}
-      {programColumns.map((col, colIdx) => (
-        <TableColumn key={colIdx}>
-          <TableHeader>{col.header}</TableHeader>
-          {programs.map((program: UnionProgram) => {
-            if (hasProperty(program, col.property)) {
-              const value = program[col.property] as string | null;
-              const currentParticipant = participants.find((participant) => participant.id === program.participantId);
-              if (!currentParticipant) {
-                return null;
-              }
-              return (
-                <TableCell
-                  key={program.id}
-                  header={col.header}
-                  property={col.property}
-                  programId={program.id}
-                  participantId={currentParticipant.id}
-                  value={value || ''}
-                  programContext={programContext}
-                  department={department}
-                  rowHeight={rowHeights[program.id] || 0}
-                  setRowHeight={(height: number) => handleSetRowHeight(program.id, height)}
-                />
-              );
+          </TableColumn>
+        ))
+      }
+      {
+        programColumns.map((column) => (
+          <TableColumn key={column.key}>
+            <TableHeader>{column.label}</TableHeader>
+            {
+              programs.map((program) => {
+                const participant = participants.find((participant) => participant.id === program.participantId)!;
+                const filteredParticipantSocialMedias = participantSocialMedias.filter((participantSocialMedia) => participantSocialMedia.participantId === participant.id);
+                return (
+                  <TableCell
+                    key={`${program.id}-${column.key}-program`}
+                    program={program}
+                    participant={participant}
+                    participantSocialMedias={filteredParticipantSocialMedias}
+                    columnKey={column.key}
+                    isParticipantColumn={false}
+                  />
+                );
+              })
             }
-            return null;
-          })}
-        </TableColumn>
-      ))}
+          </TableColumn>
+        ))
+      }
     </div>
   );
 }

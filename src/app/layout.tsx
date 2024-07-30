@@ -11,9 +11,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja">
-      <body className={`${inter.className}`}>
+      <body className={`${inter.className} bg-gray-100`}>
         <Header />
-        {children}
+        <main className="items-center justify-between px-10 py-10 min-h-[calc(100vh-74px)]">
+          {children}
+        </main>
         {/* <Footer /> */}
       </body>
     </html>

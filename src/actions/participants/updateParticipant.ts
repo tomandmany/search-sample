@@ -1,4 +1,4 @@
-// パス: /actions/participants/updateParticipant.ts
+// /actions/participants/updateParticipant.ts
 import { supabase } from '@/lib/supabaseClient';
 import { TablesUpdate } from '@/types/supabase.types';
 
@@ -21,9 +21,28 @@ export default async function updateParticipant(
   const updatedParticipant: TablesUpdate<'participants'> = {};
   formData.forEach((value, key) => {
     if (key !== 'id') {
-      updatedParticipant[key as keyof TablesUpdate<'participants'>] = value as any;
+      updatedParticipant[key as keyof TablesUpdate<'participants'>] =
+        value as any;
     }
   });
+
+  // console.log('Updated Participant Data:', updatedParticipant);
+
+  // IDの存在を確認する
+  const { data: existingParticipant, error: fetchError } = await supabase
+    .from('participants')
+    .select('id')
+    .eq('id', id)
+    .single();
+
+  if (fetchError || !existingParticipant) {
+    console.error('Participant ID not found:', fetchError || 'No data');
+    return {
+      success: false,
+      error: fetchError || 'Participant ID not found',
+      data: null,
+    };
+  }
 
   const { data, error } = await supabase
     .from('participants')

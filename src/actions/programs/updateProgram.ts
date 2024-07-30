@@ -1,4 +1,4 @@
-'use server'
+'use server';
 import { supabase } from '@/lib/supabaseClient';
 import { TablesUpdate } from '@/types/supabase.types';
 import { revalidatePath } from 'next/cache';
@@ -11,10 +11,14 @@ interface Response<T> {
 
 export default async function updateProgram(
   formData: FormData,
-  department: 'booth' | 'outstage' | 'room'
+  target: Target
 ): Promise<Response<TablesUpdate<typeof tableName>>> {
   const id = formData.get('id') as string;
-  const tableName = `${department}Programs` as const;
+  if (target === 'participant') {
+    console.error('Invalid target:', target);
+    return { success: false, error: 'Invalid target', data: null };
+  }
+  const tableName: TableName = `${target}Programs` as const;
 
   if (!id) {
     console.error('No ID provided');
@@ -24,7 +28,8 @@ export default async function updateProgram(
   const updatedProgram: Partial<TablesUpdate<typeof tableName>> = {};
   formData.forEach((value, key) => {
     if (key !== 'id') {
-      updatedProgram[key as keyof TablesUpdate<typeof tableName>] = value as any;
+      updatedProgram[key as keyof TablesUpdate<typeof tableName>] =
+        value as any;
     }
   });
 
@@ -45,7 +50,7 @@ export default async function updateProgram(
 
   console.log('Update response data:', data);
 
-  revalidatePath(`/programs/${department}`);
+  revalidatePath(`/programs/${target}`);
 
   return { success: true, data };
 }

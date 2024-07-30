@@ -11,7 +11,7 @@ interface Response {
 
 export default async function updateParticipantSocialMedia(
   formData: FormData,
-  department: 'booth' | 'outstage' | 'room'
+  target?: Target
 ): Promise<Response> {
   const id = formData.get('id') as string;
 
@@ -48,7 +48,7 @@ export default async function updateParticipantSocialMedia(
 
   console.log('Updated data:', data);
 
-  revalidatePath(`/programs/${department}`);
+  revalidatePath(`/programs/${target}`);
 
   return { success: true, data };
 }

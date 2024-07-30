@@ -1,23 +1,23 @@
 // src/components/contents/SocialMedia.tsx
-import { useContext, useState, useEffect, Dispatch, SetStateAction } from 'react';
+
+import { useContext, useState, useEffect, useRef, RefObject } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { ExternalLink, PlusIcon, Rss, Trash2 } from "lucide-react";
 import { FaInstagram, FaTiktok, FaXTwitter } from "react-icons/fa6";
-import { ProgramContextType } from '@/app/programs/contexts/ProgramContext';
 import createParticipantSocialMedia from '@/actions/participantSocialMedia/createParticipantSocialMedia';
 import updateParticipantSocialMedia from '@/actions/participantSocialMedia/updateParticipantSocialMedia';
 import deleteParticipantSocialMedia from '@/actions/participantSocialMedia/deleteParticipantSocialMedia';
 import getSocialMediaModels from '@/data/socialMediaModels';
+import { z } from 'zod';
+import ProgramContext from '@/app/programs/contexts/ProgramContext';
 
+// 型定義
 type SocialMediaProps = {
     participantId: string;
-    programContext: React.Context<ProgramContextType | undefined>;
-    department?: 'booth' | 'outstage' | 'room';
-    currentParticipantSocialMedias: ParticipantSocialMedia[];
-    setCurrentParticipantSocialMedias: Dispatch<SetStateAction<ParticipantSocialMedia[]>>;
-    setRowHeight: (height: number) => void;
+    participantSocialMedias: ParticipantSocialMedia[];
+    tableCellRef: RefObject<HTMLDivElement>;
 };
 
 type NewSocialMedia = {
@@ -25,6 +25,13 @@ type NewSocialMedia = {
     name: string;
     url: string;
 };
+
+// zodを使ったバリデーションスキーマ
+const newSocialMediaSchema = z.object({
+    id: z.string(),
+    name: z.string(),
+    url: z.string().min(1, 'URL cannot be empty')
+});
 
 const iconMap: { [key: string]: React.ReactNode } = {
     x: <FaXTwitter />,
@@ -34,24 +41,19 @@ const iconMap: { [key: string]: React.ReactNode } = {
     blog: <Rss className='w-4' />,
 };
 
-export default function SocialMedia({ participantId, programContext, department, currentParticipantSocialMedias, setCurrentParticipantSocialMedias, setRowHeight }: SocialMediaProps) {
+export default function SocialMedia({ participantId, participantSocialMedias: initialParticipantSocialMedias, tableCellRef }: SocialMediaProps) {
+    const context = useContext(ProgramContext);
+    if (!context) {
+        throw new Error('TableCell must be used within a Provider');
+    }
+    const { target, setRowHeight } = context;
+
     const [newSocialMedia, setNewSocialMedia] = useState<Partial<NewSocialMedia>>({ id: '', name: '', url: '' });
     const [popoverOpen, setPopoverOpen] = useState<boolean>(false);
+    const [participantSocialMedias, setParticipantSocialMedia] = useState<ParticipantSocialMedia[]>(initialParticipantSocialMedias);
     const [socialMediaModels, setSocialMediaModels] = useState<SocialMediaModel[]>([]);
-
-    const context = useContext(programContext);
-    if (!context) {
-        throw new Error('SocialMedia must be used within a Provider');
-    }
-    const { participantSocialMedias } = context;
-
-    useEffect(() => {
-        const filteredParticipantSocialMedias = participantSocialMedias.filter(
-            (socialMedia) => socialMedia.participantId === participantId
-        );
-
-        setCurrentParticipantSocialMedias(filteredParticipantSocialMedias);
-    }, [participantId, participantSocialMedias, setCurrentParticipantSocialMedias]);
+    const [error, setError] = useState<string | null>(null);
+    const ref = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         async function fetchSocialMediaModels() {
@@ -63,8 +65,11 @@ export default function SocialMedia({ participantId, programContext, department,
     }, []);
 
     useEffect(() => {
-        console.log('currentParticipantSocialMedias updated:', currentParticipantSocialMedias);
-    }, [currentParticipantSocialMedias]);
+        if (tableCellRef.current) {
+            const currentHeight = tableCellRef.current.offsetHeight;
+            setRowHeight(participantId, currentHeight);
+        }
+    }, [participantSocialMedias, setRowHeight, participantId, tableCellRef]);
 
     const handleSocialMediaTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         const selectedModel = socialMediaModels.find(model => model.id === event.target.value);
@@ -76,126 +81,144 @@ export default function SocialMedia({ participantId, programContext, department,
     };
 
     const handleCreateParticipantSocialMedia = async () => {
+        // バリデーション
+        const validationResult = newSocialMediaSchema.safeParse(newSocialMedia);
+        if (!validationResult.success) {
+            setError('URL cannot be empty');
+            return;
+        }
+
         const currentSocialMediaModel = socialMediaModels.find((socialMedia) => socialMedia.id === newSocialMedia.id);
 
         if (!participantId || !currentSocialMediaModel || !newSocialMedia.url) {
-            console.error('Invalid input data');
+            setError('Invalid input data');
             return;
         }
 
         const socialMediaFormData = new FormData();
         socialMediaFormData.append('participantId', participantId);
-        socialMediaFormData.append('channelModelId', currentSocialMediaModel.id);
+        socialMediaFormData.append('socialMediaModelId', currentSocialMediaModel.id);
         socialMediaFormData.append('url', newSocialMedia.url);
-        if (department) {
-            const response = await createParticipantSocialMedia(socialMediaFormData, department);
+
+        if (target) {
+            const response = await createParticipantSocialMedia(socialMediaFormData, target);
             if (response.success && response.data) {
                 const newSocialMediaEntry: ParticipantSocialMedia = {
                     id: response.data.id!,
                     participantId: response.data.participantId!,
-                    channelModelId: response.data.channelModelId!,
+                    socialMediaModelId: response.data.socialMediaModelId!,
                     url: response.data.url!,
                     createdAt: response.data.createdAt!,
                 };
-                setCurrentParticipantSocialMedias(prev => [...prev, newSocialMediaEntry]);
+                setParticipantSocialMedia(prev => [...prev, newSocialMediaEntry]);
                 setNewSocialMedia({ id: '', name: '', url: '' });
                 setPopoverOpen(false);
-                recalculateRowHeight([...currentParticipantSocialMedias, newSocialMediaEntry]);
+                setError(null);
             } else {
-                console.error('Failed to create channel:', response.error);
+                setError('Failed to create socialMedia');
+                console.error('Failed to create socialMedia:', response.error);
             }
         }
     };
 
-    const handleUpdateParticipantSocialMedia = async (channelId: string, newUrl: string) => {
+    const handleUpdateParticipantSocialMedia = async (socialMediaId: string, newUrl: string) => {
+        if (!newUrl) {
+            setError('URL cannot be empty');
+            return;
+        }
         const formData = new FormData();
-        formData.append('id', channelId);
+        formData.append('id', socialMediaId);
         formData.append('url', newUrl);
-        if (department) {
-            const response = await updateParticipantSocialMedia(formData, department);
+        if (target) {
+            const response = await updateParticipantSocialMedia(formData, target);
             if (response.success) {
-                setCurrentParticipantSocialMedias(prev =>
-                    prev.map(sm => sm.id === channelId ? { ...sm, url: newUrl } : sm)
+                setParticipantSocialMedia(prev =>
+                    prev.map(sm => sm.id === socialMediaId ? { ...sm, url: newUrl } : sm)
                 );
-                recalculateRowHeight(currentParticipantSocialMedias);
+                setError(null);
             } else {
-                console.error('Failed to update channel:', response.error);
+                setError('Failed to update socialMedia');
+                console.error('Failed to update socialMedia:', response.error);
             }
         }
     };
 
-    const handleDeleteParticipantSocialMedia = async (channelId: string) => {
-        if (department) {
-            const response = await deleteParticipantSocialMedia(channelId, department);
+    const handleDeleteParticipantSocialMedia = async (socialMediaId: string) => {
+        if (target) {
+            const response = await deleteParticipantSocialMedia(socialMediaId, target);
             if (response.success) {
-                setCurrentParticipantSocialMedias(prev => {
-                    const updated = prev.filter(sm => sm.id !== channelId);
-                    recalculateRowHeight(updated);
-                    return updated;
-                });
+                setParticipantSocialMedia(prev => prev.filter(sm => sm.id !== socialMediaId));
+                setError(null);
             } else {
-                console.error('Failed to delete channel:', response.error);
+                setError('Failed to delete socialMedia');
+                console.error('Failed to delete socialMedia:', response.error);
             }
         }
     };
 
-    const recalculateRowHeight = (socialMedias: ParticipantSocialMedia[]) => {
-        // 仮に、すべての要素の高さを再計算するロジック
-        const maxHeight = socialMedias.reduce((max, sm) => {
-            const element = document.getElementById(sm.id);
-            if (element) {
-                return Math.max(max, element.offsetHeight);
-            }
-            return max;
-        }, 0);
-        setRowHeight(maxHeight);
+    const handleKeyDown = async (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if ((event.metaKey && event.key === 'Enter') || (event.ctrlKey && event.key === 'Enter')) {
+            const target = event.target as HTMLInputElement;
+            target.blur(); // Blur the input to trigger the handleBlur event
+        }
+    };
+
+    const handleBlur = async (event: React.FocusEvent<HTMLInputElement>) => {
+        const target = event.target as HTMLInputElement;
+        const newUrl = target.value;
+        const socialMediaId = target.getAttribute('data-id')!;
+        await handleUpdateParticipantSocialMedia(socialMediaId, newUrl);
     };
 
     return (
-        <div
-            className="flex flex-col gap-6 m-2"
-        >
-            {currentParticipantSocialMedias.length > 0 && (
+        <div className="flex flex-col gap-6 m-2" ref={ref}>
+            {participantSocialMedias.length > 0 && (
                 <div className="flex flex-col gap-2">
-                    {currentParticipantSocialMedias.map((participantSocialMedia, index) => {
-                        const socialMediaModel = socialMediaModels.find((model) => model.id === participantSocialMedia.channelModelId);
+                    {participantSocialMedias.map((participantSocialMedia, index) => {
+                        const socialMediaModel = socialMediaModels.find((model) => model.id === participantSocialMedia.socialMediaModelId);
                         return (
-                            <div key={index} id={participantSocialMedia.id} className="flex justify-between items-center">
-                                <span className="flex items-center justify-center">
+                            <div key={index} id={participantSocialMedia.id} className="flex flex-col">
+                                <div className="flex items-center justify-center">
                                     {iconMap[socialMediaModel?.name?.toLowerCase() || '']}
                                     <span className='ml-2'>:</span>
                                     <input
                                         type="text"
                                         value={participantSocialMedia.url ?? ''}
-                                        onChange={(e) => setCurrentParticipantSocialMedias(prev =>
+                                        data-id={participantSocialMedia.id}
+                                        onChange={(e) => setParticipantSocialMedia(prev =>
                                             prev.map(sm => sm.id === participantSocialMedia.id ? { ...sm, url: e.target.value } : sm)
                                         )}
-                                        onBlur={(e) => handleUpdateParticipantSocialMedia(participantSocialMedia.id, e.target.value)}
+                                        onBlur={handleBlur}
+                                        onKeyDown={handleKeyDown}
                                         className="cursor-pointer rounded px-2 py-1 hover:bg-gray-200 focus:bg-inherit focus:hover:bg-inherit focus:cursor-text"
                                     />
-                                    {participantSocialMedia.url && (
-                                        <Button variant="ghost" className='p-2' type='button'>
-                                            <a href={participantSocialMedia.url} target='_blank' rel='noreferrer noopener' className='text-[#0000ee] hover:underline ml-1'>
-                                                <ExternalLink className='w-4' />
-                                            </a>
-                                        </Button>
+                                    {participantSocialMedia.url && !error && (
+                                        <>
+                                            <Button variant="ghost" className='p-2' type='button'>
+
+                                                <a href={participantSocialMedia.url} target='_blank' rel='noreferrer noopener' className='text-[#0000ee] hover:underline ml-1'>
+                                                    <ExternalLink className='w-4' />
+                                                </a>
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                className="p-2 w-[36px]"
+                                                type='button'
+                                                onClick={() => handleDeleteParticipantSocialMedia(participantSocialMedia.id)}
+                                            >
+                                                <Trash2 className="text-red-600" />
+                                            </Button>
+                                        </>
                                     )}
-                                    <Button
-                                        variant="ghost"
-                                        className="p-2 w-[36px]"
-                                        type='button'
-                                        onClick={() => handleDeleteParticipantSocialMedia(participantSocialMedia.id)}
-                                    >
-                                        <Trash2 className="text-red-600" />
-                                    </Button>
-                                </span>
+                                </div>
+                                {error && <div className="text-red-600">{error}</div>}
                             </div>
                         );
                     })}
                 </div>
             )}
             <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
-                {currentParticipantSocialMedias.length < 5 &&
+                {participantSocialMedias.length < 5 &&
                     <PopoverTrigger asChild>
                         <Button variant="outline" className="p-2 flex justify-center items-center gap-3 hover:border-gray-600 max-w-fit mx-auto">
                             <PlusIcon />
@@ -212,7 +235,7 @@ export default function SocialMedia({ participantId, programContext, department,
                         >
                             <option value="">選択してください</option>
                             {socialMediaModels
-                                .filter((model) => !currentParticipantSocialMedias.some(channel => channel.channelModelId === model.id))
+                                .filter((model) => !participantSocialMedias.some(socialMedia => socialMedia.socialMediaModelId === model.id))
                                 .map((model) => (
                                     <option key={model.id} value={model.id}>{model.name}</option>
                                 ))}
@@ -224,6 +247,7 @@ export default function SocialMedia({ participantId, programContext, department,
                             placeholder="リンクを入力"
                             className="cursor-pointer rounded px-2 py-1 hover:bg-gray-200 border"
                         />
+                        {error && <div className="text-red-600">{error}</div>}
                         <Button onClick={handleCreateParticipantSocialMedia} className="self-end">
                             追加
                         </Button>

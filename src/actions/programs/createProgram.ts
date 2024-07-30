@@ -1,23 +1,34 @@
-// パス: /actions/programs/createProgram.ts
+'use server';
+
 import { supabase } from '@/lib/supabaseClient';
 import { TablesInsert } from '@/types/supabase.types';
+import { revalidatePath } from 'next/cache';
 
-interface Response {
+interface Response<T> {
   success: boolean;
-  data?: TablesInsert<'programs'> | null;
+  data?: T | null;
   error?: any;
 }
 
 export default async function createProgram(
-  formData: FormData
-): Promise<Response> {
-  const newProgram: TablesInsert<'programs'> = {};
+  formData: FormData,
+  target: Target
+): Promise<Response<TablesInsert<typeof tableName>>> {
+  if (target === 'participant') {
+    console.error('Invalid target:', target);
+    return { success: false, error: 'Invalid target', data: null };
+  }
+  const tableName: TableName = `${target}Programs` as const;
+
+  const newProgram: Partial<TablesInsert<typeof tableName>> = {};
   formData.forEach((value, key) => {
-    newProgram[key as keyof TablesInsert<'programs'>] = value as any;
+    if (key !== 'id') {
+      newProgram[key as keyof TablesInsert<typeof tableName>] = value as any;
+    }
   });
 
   const { data, error } = await supabase
-    .from('programs')
+    .from(tableName)
     .insert([newProgram])
     .single();
 
@@ -25,6 +36,8 @@ export default async function createProgram(
     console.error('Error creating program:', error);
     return { success: false, error, data: null };
   }
+
+  revalidatePath(`/programs/${target}`);
 
   return { success: true, data };
 }
