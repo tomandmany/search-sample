@@ -9,7 +9,7 @@ export type ProgramContextType = {
     maxWidths: { [key: string]: number };
     setMaxWidth: (header: string, width: number) => void;
     rowHeights: { [key: string]: number };
-    setRowHeight: (header: string, width: number) => void;
+    setRowHeight: (participantId: string, height: number, prevHeight?: number) => void;
 };
 
 const ProgramContext = createContext<ProgramContextType | undefined>(undefined);

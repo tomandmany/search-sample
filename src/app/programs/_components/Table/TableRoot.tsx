@@ -34,6 +34,26 @@ export default function TableRoot({
   const [participantSocialMedias, setParticipantSocialMedias] = useState<ParticipantSocialMedia[]>(initialParticipantSocialMedias);
 
   useEffect(() => {
+    if (target !== 'participant') {
+      setTarget(target!);
+    }
+
+    switch (target) {
+      case 'booth':
+        setProgramColumns(boothProgramColumns);
+        break;
+      case 'outstage':
+        setProgramColumns(outstageProgramColumns);
+        break;
+      case 'room':
+        setProgramColumns(roomProgramColumns);
+        break;
+      default:
+        break;
+    }
+  }, [target, setTarget]);
+
+  useEffect(() => {
     const targetPrograms = target !== 'participant' ? `${target}Programs` : null;
 
     const programsChannel = supabase
@@ -42,6 +62,9 @@ export default function TableRoot({
         setPrograms((prevPrograms) => {
           if (!prevPrograms) return [];
           if (payload.eventType === 'INSERT') {
+            if (prevPrograms.some(program => program.id === payload.new.id)) {
+              return prevPrograms;
+            }
             return [...prevPrograms, payload.new as UnionProgram];
           } else if (payload.eventType === 'UPDATE') {
             return prevPrograms.map((program) => (program.id === (payload.new as UnionProgram).id ? (payload.new as UnionProgram) : program));
@@ -59,6 +82,9 @@ export default function TableRoot({
         setParticipants((prevParticipants) => {
           if (!prevParticipants) return [];
           if (payload.eventType === 'INSERT') {
+            if (prevParticipants.some(participant => participant.id === payload.new.id)) {
+              return prevParticipants;
+            }
             return [...prevParticipants, payload.new as Participant];
           } else if (payload.eventType === 'UPDATE') {
             return prevParticipants.map((participant) => (participant.id === (payload.new as Participant).id ? (payload.new as Participant) : participant));
@@ -76,6 +102,9 @@ export default function TableRoot({
         setParticipantSocialMedias((prevParticipantSocialMedias) => {
           if (!prevParticipantSocialMedias) return [];
           if (payload.eventType === 'INSERT') {
+            if (prevParticipantSocialMedias.some(media => media.id === payload.new.id)) {
+              return prevParticipantSocialMedias;
+            }
             return [...prevParticipantSocialMedias, payload.new as ParticipantSocialMedia];
           } else if (payload.eventType === 'UPDATE') {
             return prevParticipantSocialMedias.map((participantSocialMedia) => (participantSocialMedia.id === (payload.new as ParticipantSocialMedia).id ? (payload.new as ParticipantSocialMedia) : participantSocialMedia));
@@ -88,34 +117,11 @@ export default function TableRoot({
       .subscribe();
 
     return () => {
-      if (programsChannel) {
-        programsChannel.unsubscribe();
-      }
+      programsChannel.unsubscribe();
       participantsChannel.unsubscribe();
       participantSocialMediasChannel.unsubscribe();
     };
   }, [target]);
-
-  useEffect(() => {
-    if (target !== 'participant') {
-      setTarget(target!);
-    }
-
-    switch (target) {
-      case 'booth':
-        setProgramColumns(boothProgramColumns);
-        break;
-      case 'outstage':
-        setProgramColumns(outstageProgramColumns);
-        break;
-      case 'room':
-        setProgramColumns(roomProgramColumns);
-        break;
-      default:
-        setProgramColumns([]);
-        break;
-    }
-  }, [target, setTarget]);
 
   return (
     <div className="flex max-w-fit mx-auto overflow-x-auto border-x border-t shadow-md rounded-md hidden-scrollbar">
@@ -137,6 +143,7 @@ export default function TableRoot({
                     participantSocialMedias={filteredParticipantSocialMedias}
                     columnKey={column.key}
                     isParticipantColumn={true}
+                    onParticipantSocialMediaChanges={setParticipantSocialMedias}
                   />
                 );
               })}
@@ -158,6 +165,7 @@ export default function TableRoot({
                     participantSocialMedias={filteredParticipantSocialMedias}
                     columnKey={column.key}
                     isParticipantColumn={false}
+                    onParticipantSocialMediaChanges={setParticipantSocialMedias}
                   />
                 );
               })}
@@ -180,6 +188,7 @@ export default function TableRoot({
                     participantSocialMedias={filteredParticipantSocialMedias}
                     columnKey={column.key}
                     isParticipantColumn={true}
+                    onParticipantSocialMediaChanges={setParticipantSocialMedias}
                   />
                 );
               })}

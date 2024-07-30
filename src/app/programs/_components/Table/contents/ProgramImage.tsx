@@ -27,6 +27,7 @@ export default function ProgramImage({ programId, participantId, imageUrl: initi
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [prevHeight, setPrevHeight] = useState<number>(0);
 
     useEffect(() => {
         if (tableCellRef.current) {
@@ -49,6 +50,11 @@ export default function ProgramImage({ programId, participantId, imageUrl: initi
             if (response.success) {
                 setImageUrl(response.url!);
                 setError(null);
+                if (tableCellRef.current) {
+                    const currentHeight = tableCellRef.current.offsetHeight;
+                    setRowHeight(participantId, currentHeight);
+                    setPrevHeight(currentHeight);
+                }
             } else {
                 setError('Failed to upload image');
             }
@@ -76,6 +82,11 @@ export default function ProgramImage({ programId, participantId, imageUrl: initi
         if (response!.success) {
             setImageUrl(null);
             setError(null);
+            if (tableCellRef.current) {
+                const currentHeight = tableCellRef.current.offsetHeight;
+                setRowHeight(participantId, currentHeight, prevHeight);
+                setPrevHeight(prevHeight / 2);
+            }
         } else {
             setError('Error deleting image');
         }

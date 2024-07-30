@@ -1,17 +1,19 @@
-'use client'
 import ProgramProvider from "@/app/programs/contexts/ProgramProvider";
 import TableRoot from "@/app/programs/_components/Table/TableRoot";
 import OpenModalButton from "@/app/programs/_components/Table/Modal/OpenModalButton";
+import { getParticipants } from "@/data/participants";
+import { getParticipantSocialMedias } from "@/data/participantSocialMedias";
 
 type PageInterfaceProps = {
   programs?: UnionProgram[];
-  participants: Participant[];
-  participantSocialMedias: ParticipantSocialMedia[];
   heading?: string;
   target?: Target;
 }
 
-export default function PageInterface({ programs, participants, participantSocialMedias, heading, target }: PageInterfaceProps) {
+export default async function PageInterface({ programs, heading, target }: PageInterfaceProps) {
+  const participants = await getParticipants();
+  const participantSocialMedias = await getParticipantSocialMedias();
+
   return (
     <>
       <div className="flex justify-between items-center mb-8">

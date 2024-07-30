@@ -1,7 +1,7 @@
 // src/app/programs/contexts/ProgramProvider.tsx
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import ProgramContext from './ProgramContext';
 
 type ProgramProviderProps = {
@@ -22,10 +22,14 @@ const ProgramProvider = ({ children }: ProgramProviderProps) => {
         });
     }, []);
 
-    const memoizedSetRowHeight = useCallback((participantId: string, height: number) => {
+    const memoizedSetRowHeight = useCallback((participantId: string, height: number, prevHeight?: number) => {
         setRowHeights((prev) => {
-            const newRowHeights = { ...prev, [participantId]: Math.max(prev[participantId] || 0, height) };
-            return newRowHeights;
+            if (prevHeight !== undefined) {
+                const newRowHeights = { ...prev, [participantId]: prevHeight };
+                return newRowHeights;
+            } else {
+                return { ...prev, [participantId]: Math.max(prev[participantId] || 0, height) };
+            }
         });
     }, []);
 

@@ -1,6 +1,7 @@
-// src/components/contents/SocialMedia.tsx
+// @filename: /src/components/contents/SocialMedia.tsx
+'use client';
 
-import { useContext, useState, useEffect, useRef, RefObject } from 'react';
+import { useContext, useState, useEffect, useRef, RefObject, Dispatch, SetStateAction } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
@@ -13,11 +14,11 @@ import getSocialMediaModels from '@/data/socialMediaModels';
 import { z } from 'zod';
 import ProgramContext from '@/app/programs/contexts/ProgramContext';
 
-// 型定義
 type SocialMediaProps = {
     participantId: string;
     participantSocialMedias: ParticipantSocialMedia[];
     tableCellRef: RefObject<HTMLDivElement>;
+    onParticipantSocialMediaChanges: Dispatch<SetStateAction<ParticipantSocialMedia[]>>;
 };
 
 type NewSocialMedia = {
@@ -26,7 +27,6 @@ type NewSocialMedia = {
     url: string;
 };
 
-// zodを使ったバリデーションスキーマ
 const newSocialMediaSchema = z.object({
     id: z.string(),
     name: z.string(),
@@ -41,7 +41,7 @@ const iconMap: { [key: string]: React.ReactNode } = {
     blog: <Rss className='w-4' />,
 };
 
-export default function SocialMedia({ participantId, participantSocialMedias: initialParticipantSocialMedias, tableCellRef }: SocialMediaProps) {
+export default function SocialMedia({ participantId, participantSocialMedias, tableCellRef, onParticipantSocialMediaChanges: handleParticipantSocialMediaChanges }: SocialMediaProps) {
     const context = useContext(ProgramContext);
     if (!context) {
         throw new Error('TableCell must be used within a Provider');
@@ -50,7 +50,6 @@ export default function SocialMedia({ participantId, participantSocialMedias: in
 
     const [newSocialMedia, setNewSocialMedia] = useState<Partial<NewSocialMedia>>({ id: '', name: '', url: '' });
     const [popoverOpen, setPopoverOpen] = useState<boolean>(false);
-    const [participantSocialMedias, setParticipantSocialMedia] = useState<ParticipantSocialMedia[]>(initialParticipantSocialMedias);
     const [socialMediaModels, setSocialMediaModels] = useState<SocialMediaModel[]>([]);
     const [error, setError] = useState<string | null>(null);
     const ref = useRef<HTMLDivElement>(null);
@@ -69,7 +68,7 @@ export default function SocialMedia({ participantId, participantSocialMedias: in
             const currentHeight = tableCellRef.current.offsetHeight;
             setRowHeight(participantId, currentHeight);
         }
-    }, [participantSocialMedias, setRowHeight, participantId, tableCellRef]);
+    }, [participantId, setRowHeight, tableCellRef]);
 
     const handleSocialMediaTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         const selectedModel = socialMediaModels.find(model => model.id === event.target.value);
@@ -81,7 +80,6 @@ export default function SocialMedia({ participantId, participantSocialMedias: in
     };
 
     const handleCreateParticipantSocialMedia = async () => {
-        // バリデーション
         const validationResult = newSocialMediaSchema.safeParse(newSocialMedia);
         if (!validationResult.success) {
             setError('URL cannot be empty');
@@ -100,24 +98,33 @@ export default function SocialMedia({ participantId, participantSocialMedias: in
         socialMediaFormData.append('socialMediaModelId', currentSocialMediaModel.id);
         socialMediaFormData.append('url', newSocialMedia.url);
 
-        if (target) {
-            const response = await createParticipantSocialMedia(socialMediaFormData, target);
-            if (response.success && response.data) {
-                const newSocialMediaEntry: ParticipantSocialMedia = {
-                    id: response.data.id!,
-                    participantId: response.data.participantId!,
-                    socialMediaModelId: response.data.socialMediaModelId!,
-                    url: response.data.url!,
-                    createdAt: response.data.createdAt!,
-                };
-                setParticipantSocialMedia(prev => [...prev, newSocialMediaEntry]);
-                setNewSocialMedia({ id: '', name: '', url: '' });
-                setPopoverOpen(false);
-                setError(null);
-            } else {
-                setError('Failed to create socialMedia');
-                console.error('Failed to create socialMedia:', response.error);
+        const response = await createParticipantSocialMedia(socialMediaFormData, target);
+        if (response.success && response.data) {
+            const newSocialMediaEntry: ParticipantSocialMedia = {
+                id: response.data.id!,
+                participantId: response.data.participantId!,
+                socialMediaModelId: response.data.socialMediaModelId!,
+                url: response.data.url!,
+                createdAt: response.data.createdAt!,
+            };
+
+            handleParticipantSocialMediaChanges(prev => {
+                if (prev.some(sm => sm.id === newSocialMediaEntry.id)) {
+                    return prev;
+                }
+                return [...prev, newSocialMediaEntry];
+            });
+
+            setNewSocialMedia({ id: '', name: '', url: '' });
+            setPopoverOpen(false);
+            setError(null);
+            if (tableCellRef.current) {
+                const currentHeight = tableCellRef.current.offsetHeight;
+                setRowHeight(participantId, currentHeight);
             }
+        } else {
+            setError('Failed to create socialMedia');
+            console.error('Failed to create socialMedia:', response.error);
         }
     };
 
@@ -129,37 +136,37 @@ export default function SocialMedia({ participantId, participantSocialMedias: in
         const formData = new FormData();
         formData.append('id', socialMediaId);
         formData.append('url', newUrl);
-        if (target) {
-            const response = await updateParticipantSocialMedia(formData, target);
-            if (response.success) {
-                setParticipantSocialMedia(prev =>
-                    prev.map(sm => sm.id === socialMediaId ? { ...sm, url: newUrl } : sm)
-                );
-                setError(null);
-            } else {
-                setError('Failed to update socialMedia');
-                console.error('Failed to update socialMedia:', response.error);
-            }
+        const response = await updateParticipantSocialMedia(formData, target);
+        if (response.success) {
+            handleParticipantSocialMediaChanges(prev =>
+                prev.map(sm => sm.id === socialMediaId ? { ...sm, url: newUrl } : sm)
+            );
+            setError(null);
+        } else {
+            setError('Failed to update socialMedia');
+            console.error('Failed to update socialMedia:', response.error);
         }
     };
 
     const handleDeleteParticipantSocialMedia = async (socialMediaId: string) => {
-        if (target) {
-            const response = await deleteParticipantSocialMedia(socialMediaId, target);
-            if (response.success) {
-                setParticipantSocialMedia(prev => prev.filter(sm => sm.id !== socialMediaId));
-                setError(null);
-            } else {
-                setError('Failed to delete socialMedia');
-                console.error('Failed to delete socialMedia:', response.error);
+        const response = await deleteParticipantSocialMedia(socialMediaId, target);
+        if (response.success) {
+            handleParticipantSocialMediaChanges(prev => prev.filter(sm => sm.id !== socialMediaId));
+            setError(null);
+            if (tableCellRef.current) {
+                const currentHeight = tableCellRef.current.offsetHeight;
+                setRowHeight(participantId, currentHeight);
             }
+        } else {
+            setError('Failed to delete socialMedia');
+            console.error('Failed to delete socialMedia:', response.error);
         }
     };
 
     const handleKeyDown = async (event: React.KeyboardEvent<HTMLInputElement>) => {
         if ((event.metaKey && event.key === 'Enter') || (event.ctrlKey && event.key === 'Enter')) {
             const target = event.target as HTMLInputElement;
-            target.blur(); // Blur the input to trigger the handleBlur event
+            target.blur();
         }
     };
 
@@ -174,10 +181,10 @@ export default function SocialMedia({ participantId, participantSocialMedias: in
         <div className="flex flex-col gap-6 m-2" ref={ref}>
             {participantSocialMedias.length > 0 && (
                 <div className="flex flex-col gap-2">
-                    {participantSocialMedias.map((participantSocialMedia, index) => {
+                    {participantSocialMedias.map((participantSocialMedia) => {
                         const socialMediaModel = socialMediaModels.find((model) => model.id === participantSocialMedia.socialMediaModelId);
                         return (
-                            <div key={index} id={participantSocialMedia.id} className="flex flex-col">
+                            <div key={participantSocialMedia.id} id={participantSocialMedia.id} className="flex flex-col">
                                 <div className="flex items-center justify-center">
                                     {iconMap[socialMediaModel?.name?.toLowerCase() || '']}
                                     <span className='ml-2'>:</span>
@@ -185,7 +192,7 @@ export default function SocialMedia({ participantId, participantSocialMedias: in
                                         type="text"
                                         value={participantSocialMedia.url ?? ''}
                                         data-id={participantSocialMedia.id}
-                                        onChange={(e) => setParticipantSocialMedia(prev =>
+                                        onChange={(e) => handleParticipantSocialMediaChanges(prev =>
                                             prev.map(sm => sm.id === participantSocialMedia.id ? { ...sm, url: e.target.value } : sm)
                                         )}
                                         onBlur={handleBlur}
@@ -195,7 +202,6 @@ export default function SocialMedia({ participantId, participantSocialMedias: in
                                     {participantSocialMedia.url && !error && (
                                         <>
                                             <Button variant="ghost" className='p-2' type='button'>
-
                                                 <a href={participantSocialMedia.url} target='_blank' rel='noreferrer noopener' className='text-[#0000ee] hover:underline ml-1'>
                                                     <ExternalLink className='w-4' />
                                                 </a>

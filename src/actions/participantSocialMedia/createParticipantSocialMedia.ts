@@ -59,6 +59,7 @@ export default async function createParticipantSocialMedia(
   console.log('Inserted data:', data);
 
   revalidatePath(`/programs/${target}`);
+  revalidatePath('/participants');
 
   return { success: true, data };
 }

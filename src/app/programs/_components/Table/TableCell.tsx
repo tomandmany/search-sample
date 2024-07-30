@@ -1,4 +1,4 @@
-// src/components/TableCell.tsx
+// @filename: /src/components/TableCell.tsx
 'use client';
 
 import {
@@ -7,7 +7,9 @@ import {
     useRef,
     useState,
     KeyboardEvent,
-    FocusEvent
+    FocusEvent,
+    Dispatch,
+    SetStateAction
 } from 'react';
 import ProgramContext from '@/app/programs/contexts/ProgramContext';
 import updateParticipant from '@/actions/participants/updateParticipant';
@@ -23,6 +25,7 @@ type TableCellProps = {
     participantSocialMedias: ParticipantSocialMedia[];
     columnKey: string;
     isParticipantColumn: boolean;
+    onParticipantSocialMediaChanges: Dispatch<SetStateAction<ParticipantSocialMedia[]>>;
 };
 
 const getWidth = (text: string, font: string): number => {
@@ -49,7 +52,8 @@ export default function TableCell({
     participant,
     participantSocialMedias,
     columnKey,
-    isParticipantColumn
+    isParticipantColumn,
+    onParticipantSocialMediaChanges: handleParticipantSocialMediaChanges
 }: TableCellProps) {
     const context = useContext(ProgramContext);
     if (!context) {
@@ -185,6 +189,7 @@ export default function TableCell({
                             participantId={participant.id}
                             participantSocialMedias={participantSocialMedias}
                             tableCellRef={ref}
+                            onParticipantSocialMediaChanges={handleParticipantSocialMediaChanges}
                         />
                     );
                     break;
@@ -213,24 +218,37 @@ export default function TableCell({
             }
         }
     } else {
-        content = (
-            <input
-                type="text"
-                value={inputValue}
-                className={`cursor-pointer rounded px-2 py-1 hover:bg-gray-200 focus:bg-inherit focus:hover:bg-inherit focus:cursor-text ${error && 'border-2 border-red-600'}`}
-                onChange={handleChange}
-                onKeyDown={handleKeyDown}
-                onBlur={handleBlur}
-                style={{ minWidth: `${maxWidth}px` }}
-            />
-        );
+        switch (columnKey) {
+            case 'socialMedia':
+                content = (
+                    <SocialMedia
+                        participantId={participant.id}
+                        participantSocialMedias={participantSocialMedias}
+                        tableCellRef={ref}
+                        onParticipantSocialMediaChanges={handleParticipantSocialMediaChanges}
+                    />
+                );
+                break;
+            default:
+                content = (
+                    <input
+                        type="text"
+                        value={inputValue}
+                        className={`cursor-pointer rounded px-2 py-1 hover:bg-gray-200 focus:bg-inherit focus:hover:bg-inherit focus:cursor-text ${error && 'border-2 border-red-600'}`}
+                        onChange={handleChange}
+                        onKeyDown={handleKeyDown}
+                        onBlur={handleBlur}
+                        style={{ minWidth: `${maxWidth}px` }}
+                    />
+                );
+        }
     }
 
     return (
         <div
             ref={ref}
             className={`min-w-max p-2 bg-white border-b flex flex-col justify-center items-center ${columnKey === 'SNSアカウント' && 'justify-center'}`}
-            style={{ minHeight: `${maxHeight}px`, height: `${maxHeight}px` }}
+            style={{ minHeight: `${maxHeight}px` }}
         >
             {content}
             {error && <div className="text-red-600">{error}</div>}
