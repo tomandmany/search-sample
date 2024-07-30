@@ -15,7 +15,7 @@ import CustomSelect from './contents/CustomSelect';
 import PhotographPermission from './contents/PhotographPermission';
 import SocialMedia from './contents/SocialMedia';
 import ProgramImage from './contents/ProgramImage';
-import updateOutstageProgram from '@/actions/outstagePrograms/updateOutstageProgram';
+import updateProgram from '@/actions/programs/updateProgram';
 
 type TableCellProps = {
     program?: UnionProgram;
@@ -55,7 +55,7 @@ export default function TableCell({
     if (!context) {
         throw new Error('TableCell must be used within a Provider');
     }
-    const { maxWidths, setMaxWidth, rowHeights, setRowHeight } = context;
+    const { maxWidths, setMaxWidth, rowHeights, setRowHeight, target } = context;
 
     const [inputValue, setInputValue] = useState<string>('');
     const [inputWidth, setInputWidth] = useState<number>(50);
@@ -141,7 +141,7 @@ export default function TableCell({
                 if (columnKey) {
                     formData.append(columnKey, newValue);
                 }
-                const response = await updateProgram(formData);
+                const response = await updateProgram(formData, target);
                 if (!response.success) {
                     console.error('Failed to update program:', response.error);
                     setError('Failed to update program');
