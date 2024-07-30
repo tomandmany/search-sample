@@ -11,9 +11,11 @@ import { boothProgramColumns, outstageProgramColumns, participantColumns, roomPr
 import ParticipantSelect from './items/ParticipantSelect';
 import InputItem from './items/InputItem';
 import ProgramImage from './items/ProgramImage';
+import SocialMedia from './items/SocialMedia';
 import createParticipant from '@/actions/participants/createParticipant';
 import createProgram from '@/actions/programs/createProgram';
 import createProgramImage from '@/actions/storages/programImages/createProgramImage';
+import createParticipantSocialMedia from '@/actions/participantSocialMedia/createParticipantSocialMedia';
 
 type AddRowModalProps = {
     onClose: () => void;
@@ -24,7 +26,7 @@ type AddRowModalProps = {
 export default function AddRowModal({ onClose: handleModalClose, participants, target }: AddRowModalProps) {
     const [columns, setColumns] = useState<{ label: string, key: string }[]>([]);
     const [targetName, setTargetName] = useState<string>('');
-    const [inputValues, setInputValues] = useState<{ [key: string]: string | File }>({});
+    const [inputValues, setInputValues] = useState<{ [key: string]: string | File | { type: string, url: string } }>({});
     const [programImageFile, setProgramImageFile] = useState<File | null>(null);
 
     useEffect(() => {
@@ -50,7 +52,7 @@ export default function AddRowModal({ onClose: handleModalClose, participants, t
         }
     }, [target]);
 
-    const handleInputChange = (key: string, value: string | File) => {
+    const handleInputChange = (key: string, value: string | File | { type: string, url: string }) => {
         setInputValues({
             ...inputValues,
             [key]: value
@@ -68,9 +70,11 @@ export default function AddRowModal({ onClose: handleModalClose, participants, t
         e.preventDefault();
 
         const formData = new FormData();
-        columns.forEach((column) => {
-            formData.append(column.key, inputValues[column.key] as string | Blob);
-        });
+        columns
+            .filter(column => column.key !== 'programImage' && column.key !== 'socialMedia')
+            .forEach((column) => {
+                formData.append(column.key, inputValues[column.key] as string | Blob);
+            });
 
         if (target !== 'participant') {
             const participant = participants.find(participant => participant.participantName === inputValues['participantName']);
@@ -95,6 +99,19 @@ export default function AddRowModal({ onClose: handleModalClose, participants, t
         let response;
         if (target === 'participant') {
             response = await createParticipant(formData);
+
+            if (response.success && inputValues.socialMedia) {
+                const socialMedia = inputValues.socialMedia as { type: string, url: string };
+                const socialMediaFormData = new FormData();
+                socialMediaFormData.append('socialMediaModelId', socialMedia.type);
+                socialMediaFormData.append('participantId', response.data?.id || '');
+                socialMediaFormData.append('url', socialMedia.url);
+
+                const socialMediaResponse = await createParticipantSocialMedia(socialMediaFormData, target);
+                if (!socialMediaResponse.success) {
+                    console.error('Failed to create social media:', socialMediaResponse.error);
+                }
+            }
         } else {
             response = await createProgram(formData, target);
         }
@@ -124,11 +141,18 @@ export default function AddRowModal({ onClose: handleModalClose, participants, t
                         </div>
                     )}
                     {columns
-                        .filter(column => column.key !== 'programImage')
+                        .filter(column => column.key !== 'programImage' && column.key !== 'socialMedia')
                         .map((column, index) => (
                             <InputItem key={`${column.key}-${index}`} column={column} onInputChange={handleInputChange} />
                         ))}
-                    <ProgramImage onUploadSuccess={setProgramImageFile} target={target} />
+                    {target !== 'participant' && (
+                        <ProgramImage onUploadSuccess={setProgramImageFile} target={target} />
+                    )}
+                    {/* {target !== 'participant' ? (
+                        <ProgramImage onUploadSuccess={setProgramImageFile} target={target} />
+                    ) : (
+                        <SocialMedia onInputChange={handleInputChange} />
+                    )} */}
                     <Button
                         type="submit"
                         variant="default"

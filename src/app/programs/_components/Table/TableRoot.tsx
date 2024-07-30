@@ -9,7 +9,7 @@ import { useContext, useEffect, useState } from 'react';
 import ProgramContext from '@/app/programs/contexts/ProgramContext';
 
 type TableRootProps = {
-  programs: UnionProgram[];
+  programs?: UnionProgram[];
   participants: Participant[];
   participantSocialMedias: ParticipantSocialMedia[];
   target?: Target;
@@ -18,14 +18,16 @@ type TableRootProps = {
 export default function TableRoot({ programs, participants, participantSocialMedias, target }: TableRootProps) {
   const context = useContext(ProgramContext);
   if (!context) {
-    throw new Error('TableCell must be used within a Provider');
+    throw new Error('TableRoot must be used within a Provider');
   }
   const { setTarget } = context;
 
   const [programColumns, setProgramColumns] = useState<{ label: string; key: string }[]>([]);
 
   useEffect(() => {
-    target !== 'participant' && setTarget(target!);
+    if (target !== 'participant') {
+      setTarget(target!);
+    }
 
     switch (target) {
       case 'booth':
@@ -45,14 +47,16 @@ export default function TableRoot({ programs, participants, participantSocialMed
 
   return (
     <div className="flex max-w-fit mx-auto overflow-x-auto border-x border-t shadow-md rounded-md hidden-scrollbar">
-      {
-        participantColumns.map((column) => (
-          <TableColumn key={column.key} isFixed={column.key === 'participantName'}>
-            <TableHeader>{column.label}</TableHeader>
-            {
-              programs.map((program) => {
+      {programs ? (
+        <>
+          {participantColumns.map((column) => (
+            <TableColumn key={column.key} isFixed={column.key === 'participantName'}>
+              <TableHeader>{column.label}</TableHeader>
+              {programs.map((program) => {
                 const filteredParticipant = participants.find((participant) => participant.id === program.participantId)!;
-                const filteredParticipantSocialMedias = participantSocialMedias.filter((participantSocialMedia) => participantSocialMedia.participantId === filteredParticipant.id);
+                const filteredParticipantSocialMedias = participantSocialMedias.filter(
+                  (participantSocialMedia) => participantSocialMedia.participantId === filteredParticipant.id
+                );
                 return (
                   <TableCell
                     key={`${program.id}-${column.key}-participant`}
@@ -63,19 +67,17 @@ export default function TableRoot({ programs, participants, participantSocialMed
                     isParticipantColumn={true}
                   />
                 );
-              })
-            }
-          </TableColumn>
-        ))
-      }
-      {
-        programColumns.map((column) => (
-          <TableColumn key={column.key}>
-            <TableHeader>{column.label}</TableHeader>
-            {
-              programs.map((program) => {
+              })}
+            </TableColumn>
+          ))}
+          {programColumns.map((column) => (
+            <TableColumn key={column.key}>
+              <TableHeader>{column.label}</TableHeader>
+              {programs.map((program) => {
                 const participant = participants.find((participant) => participant.id === program.participantId)!;
-                const filteredParticipantSocialMedias = participantSocialMedias.filter((participantSocialMedia) => participantSocialMedia.participantId === participant.id);
+                const filteredParticipantSocialMedias = participantSocialMedias.filter(
+                  (participantSocialMedia) => participantSocialMedia.participantId === participant.id
+                );
                 return (
                   <TableCell
                     key={`${program.id}-${column.key}-program`}
@@ -86,11 +88,33 @@ export default function TableRoot({ programs, participants, participantSocialMed
                     isParticipantColumn={false}
                   />
                 );
-              })
-            }
-          </TableColumn>
-        ))
-      }
+              })}
+            </TableColumn>
+          ))}
+        </>
+      ) : (
+        <>
+          {participantColumns.map((column) => (
+            <TableColumn key={column.key} isFixed={column.key === 'participantName'}>
+              <TableHeader>{column.label}</TableHeader>
+              {participants.map((participant) => {
+                const filteredParticipantSocialMedias = participantSocialMedias.filter(
+                  (participantSocialMedia) => participantSocialMedia.participantId === participant.id
+                );
+                return (
+                  <TableCell
+                    key={`${participant.id}-${column.key}-participant`}
+                    participant={participant}
+                    participantSocialMedias={filteredParticipantSocialMedias}
+                    columnKey={column.key}
+                    isParticipantColumn={true}
+                  />
+                );
+              })}
+            </TableColumn>
+          ))}
+        </>
+      )}
     </div>
   );
 }

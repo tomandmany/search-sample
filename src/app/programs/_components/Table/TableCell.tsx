@@ -18,7 +18,7 @@ import ProgramImage from './contents/ProgramImage';
 import updateOutstageProgram from '@/actions/outstagePrograms/updateOutstageProgram';
 
 type TableCellProps = {
-    program: UnionProgram;
+    program?: UnionProgram;
     participant: Participant;
     participantSocialMedias: ParticipantSocialMedia[];
     columnKey: string;
@@ -66,7 +66,7 @@ export default function TableCell({
     useEffect(() => {
         const initialInputValue = isParticipantColumn
             ? participant[columnKey as keyof Participant]
-            : program[columnKey as keyof UnionProgram];
+            : program ? program[columnKey as keyof UnionProgram] : '';
         setInputValue(initialInputValue!);
     }, [isParticipantColumn, program, participant, columnKey]);
 
@@ -116,7 +116,7 @@ export default function TableCell({
             setError('このフィールドは空にできません');
             return;
         }
-        if (!program.id && !participant.id) {
+        if (!program?.id && !participant.id) {
             setError('No ID provided');
             return;
         }
@@ -136,7 +136,7 @@ export default function TableCell({
                 }
             }
         } else {
-            if (program.id) {
+            if (program?.id) {
                 formData.append('id', program.id);
                 if (columnKey) {
                     formData.append(columnKey, newValue);
@@ -157,59 +157,73 @@ export default function TableCell({
     const maxHeight = Math.max(...Object.values(rowHeights)) || 'auto';
 
     let content;
-    if (selectOptions[columnKey]) {
+    if (program) {
+        if (selectOptions[columnKey]) {
+            content = (
+                <CustomSelect
+                    value={inputValue}
+                    options={selectOptions[columnKey]}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    maxWidth={maxWidth}
+                />
+            );
+        } else {
+            switch (columnKey) {
+                case 'photographPermission':
+                    content = (
+                        <PhotographPermission
+                            programId={program?.id}
+                            value={program?.photographPermission}
+                            setHasUnsavedChanges={setHasUnsavedChanges}
+                        />
+                    );
+                    break;
+                case 'socialMedia':
+                    content = (
+                        <SocialMedia
+                            participantId={participant.id}
+                            participantSocialMedias={participantSocialMedias}
+                            tableCellRef={ref}
+                        />
+                    );
+                    break;
+                case 'programImage':
+                    content = (
+                        <ProgramImage
+                            programId={program?.id}
+                            participantId={participant.id}
+                            imageUrl={program?.programImage!}
+                            tableCellRef={ref}
+                        />
+                    );
+                    break;
+                default:
+                    content = (
+                        <input
+                            type="text"
+                            value={inputValue}
+                            className={`cursor-pointer rounded px-2 py-1 hover:bg-gray-200 focus:bg-inherit focus:hover:bg-inherit focus:cursor-text ${error && 'border-2 border-red-600'}`}
+                            onChange={handleChange}
+                            onKeyDown={handleKeyDown}
+                            onBlur={handleBlur}
+                            style={{ minWidth: `${maxWidth}px` }}
+                        />
+                    );
+            }
+        }
+    } else {
         content = (
-            <CustomSelect
+            <input
+                type="text"
                 value={inputValue}
-                options={selectOptions[columnKey]}
+                className={`cursor-pointer rounded px-2 py-1 hover:bg-gray-200 focus:bg-inherit focus:hover:bg-inherit focus:cursor-text ${error && 'border-2 border-red-600'}`}
                 onChange={handleChange}
+                onKeyDown={handleKeyDown}
                 onBlur={handleBlur}
-                maxWidth={maxWidth}
+                style={{ minWidth: `${maxWidth}px` }}
             />
         );
-    } else {
-        switch (columnKey) {
-            case 'photographPermission':
-                content = (
-                    <PhotographPermission
-                        programId={program.id}
-                        value={program.photographPermission}
-                        setHasUnsavedChanges={setHasUnsavedChanges}
-                    />
-                );
-                break;
-            case 'socialMedia':
-                content = (
-                    <SocialMedia
-                        participantId={participant.id}
-                        participantSocialMedias={participantSocialMedias}
-                        tableCellRef={ref}
-                    />
-                );
-                break;
-            case 'programImage':
-                content = (
-                    <ProgramImage
-                        programId={program.id}
-                        participantId={participant.id}
-                        imageUrl={program.programImage!}
-                        tableCellRef={ref}
-                    />
-                );
-                break;
-            default:
-                content = (
-                    <input
-                        type="text"
-                        value={inputValue}
-                        className={`cursor-pointer rounded px-2 py-1 hover:bg-gray-200 focus:bg-inherit focus:hover:bg-inherit focus:cursor-text ${error && 'border-2 border-red-600'}`}
-                        onChange={handleChange}
-                        onKeyDown={handleKeyDown}
-                        onBlur={handleBlur}
-                        style={{ minWidth: `${maxWidth}px` }}
-                    />
-                );
-        }
     }
 
     return (

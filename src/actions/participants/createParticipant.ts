@@ -1,6 +1,8 @@
 // パス: /actions/participants/createParticipant.ts
+'use server'
 import { supabase } from '@/lib/supabaseClient';
 import { TablesInsert } from '@/types/supabase.types';
+import { revalidatePath } from 'next/cache';
 
 interface Response {
   success: boolean;
@@ -25,6 +27,8 @@ export default async function createParticipant(
     console.error('Error creating program:', error);
     return { success: false, error, data: null };
   }
+
+  revalidatePath('/participants');
 
   return { success: true, data };
 }

@@ -68,7 +68,7 @@ export default function OpenModalButton({ participants }: AddRowButtonProps) {
     };
 
     return (
-        <>
+        <div className='ml-auto'>
             <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
                 <PopoverTrigger asChild>
                     {
@@ -104,6 +104,6 @@ export default function OpenModalButton({ participants }: AddRowButtonProps) {
                 </PopoverContent>
             </Popover>
             {isModalOpen && <AddRowModal onClose={handleModalClose} participants={participants} target={target} />}
-        </>
+        </div>
     );
 }
