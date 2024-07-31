@@ -11,11 +11,16 @@ interface Response<T> {
 export default async function deleteProgramImage(
   id: string,
   fileName: string,
-  target: 'booth' | 'outstage' | 'room'
+  target: Target
 ): Promise<Response<typeof tableName>> {
-  const tableName = `${target}Programs` as const;
+  if (target === 'participant') {
+    console.error('Invalid target:', target);
+    return { success: false, error: 'Invalid target' };
+  }
 
-  if (!id || !fileName) {
+  const tableName: TableName = `${target}Programs` as const;
+
+  if (!fileName) {
     console.error('No ID or fileName provided');
     return { success: false, error: 'No ID or fileName provided' };
   }

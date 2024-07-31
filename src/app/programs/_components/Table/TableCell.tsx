@@ -234,7 +234,7 @@ export default function TableCell({
                 case 'programImage':
                     content = (
                         <ProgramImage
-                            programId={program?.id}
+                            programId={program.id}
                             participantId={participant.id}
                             imageUrl={program?.programImage!}
                             tableCellRef={ref}

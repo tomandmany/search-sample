@@ -1,10 +1,9 @@
-// app/actions/storages/programImages/createProgramImage.ts
-
-// ファイルのパス
+// @filename: /app/actions/storages/programImages/createProgramImage.ts
 'use server';
 
 import { supabase } from '@/lib/supabaseClient';
 import { revalidatePath } from 'next/cache';
+import { v4 as uuidv4 } from 'uuid';
 
 interface Response {
   success: boolean;
@@ -17,7 +16,11 @@ export default async function createProgramImage(
   target: Target
 ): Promise<Response> {
   const file = formData.get('file') as File;
-  const programName = formData.get('programName') as File;
+  let id = formData.get('id') as string;
+
+  if (!id) {
+    id = uuidv4();
+  }
 
   if (target === 'participant') {
     console.error('Invalid target:', target);
@@ -25,11 +28,11 @@ export default async function createProgramImage(
   }
 
   if (!file) {
-    console.error('No ID or file provided');
-    return { success: false, error: 'No ID or file provided' };
+    console.error('No file provided');
+    return { success: false, error: 'No file provided' };
   }
 
-  const fileName = `${programName}/${file.name}`;
+  const fileName = `${id}/${file.name}`;
   const { error: uploadError } = await supabase.storage
     .from('programImages')
     .upload(fileName, file, {
