@@ -48,12 +48,12 @@ export default function ProgramImage({ onUploadSuccess }: ProgramImageProps) {
                 </Button>
             )}
             {loading ? (
-                <div className='flex flex-col gap-4 items-center'>
+                <div className='flex flex-col gap-4 items-center mt-4'>
                     <div className="w-[150px] aspect-square bg-gray-300 animate-pulse mt-4" />
                 </div>
             ) : (
                 imageUrl && (
-                    <div className='flex flex-col gap-4 items-center'>
+                    <div className='flex flex-col gap-4 items-center mt-4'>
                         <Image
                             src={imageUrl}
                             alt="Uploaded Image"

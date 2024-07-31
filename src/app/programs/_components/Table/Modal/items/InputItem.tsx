@@ -27,29 +27,17 @@ export default function InputItem({ column, onInputChange }: InputItemProps) {
     return (
         <div className='w-full'>
             <label className="block mb-1">{column.label}</label>
-            {
-                column.key === 'programImage' ? (
-                    <input
-                        type="file"
-                        id={`${column.key}`}
-                        name={`${column.key}`}
-                        onChange={handleInputChange}
-                        className="w-full p-2 border rounded"
-                    />
-                ) : (
-                    <input
-                        type="text"
-                        id={`${column.key}`}
-                        name={`${column.key}`}
-                        value={inputValue}
-                        placeholder={`${column.label}を入力してください`}
-                        onChange={handleInputChange}
-                        onKeyDown={handleInputKeyDown}
-                        className="w-full p-2 border rounded"
-                        required
-                    />
-                )
-            }
+            <input
+                type="text"
+                id={`${column.key}`}
+                name={`${column.key}`}
+                value={inputValue}
+                placeholder={`${column.label}を入力してください`}
+                onChange={handleInputChange}
+                onKeyDown={handleInputKeyDown}
+                className="w-full p-2 border rounded"
+                required
+            />
         </div>
     );
 }

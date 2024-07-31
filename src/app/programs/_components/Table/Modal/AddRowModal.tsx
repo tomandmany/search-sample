@@ -1,6 +1,4 @@
-// app/components/AddRowModal.tsx
-
-// ファイルのパス
+// @filename: /app/components/AddRowModal.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -11,16 +9,60 @@ import { boothProgramColumns, outstageProgramColumns, participantColumns, roomPr
 import ParticipantSelect from './items/ParticipantSelect';
 import InputItem from './items/InputItem';
 import ProgramImage from './items/ProgramImage';
-import SocialMedia from './items/SocialMedia';
+import CustomSelect from './items/CustomSelect';
 import createParticipant from '@/actions/participants/createParticipant';
 import createProgram from '@/actions/programs/createProgram';
 import createProgramImage from '@/actions/storages/programImages/createProgramImage';
 import createParticipantSocialMedia from '@/actions/participantSocialMedia/createParticipantSocialMedia';
+import BooleanSelect from './items/BooleanSelect';
 
 type AddRowModalProps = {
     onClose: () => void;
     participants: Participant[];
     target: Target;
+};
+
+const selectOptions: { [key: string]: string[] } = {
+    'boothGenre': ['模擬店ジャンル1', '模擬店ジャンル2', '模擬店ジャンル3'],
+    'categoryType': ['タイプ1', 'タイプ2', 'タイプ3'],
+    'outstageGenre': ['音楽', 'ダンス', 'パフォーマンス'],
+    'outstageVenue': ['メインステージ', 'パフォーマンスエリア', 'エントランスエリア'],
+    'roomGenre': ['教室ジャンル1', '教室ジャンル2', '教室ジャンル3'],
+    'eventBuilding': ['第一校舎', 'メディア棟', '和泉ラーニングスクエア'],
+    'eventDate': ['2日', '3日', '4日']
+};
+
+const booleanOptions: { [key: string]: { value: string, label: string }[] } = {
+    'photographPermission': [
+        { value: '可', label: '撮影可' },
+        { value: '不可', label: '撮影不可' },
+        { value: '不明', label: '不明' }
+    ],
+    'isDrinkAvailable': [
+        { value: '販売有り', label: '販売有り' },
+        { value: '販売無し', label: '販売無し' },
+        { value: '不明', label: '不明' }
+    ],
+    'isEcoTrayUsed': [
+        { value: '利用有り', label: '利用有り' },
+        { value: '利用無し', label: '利用無し' },
+        { value: '不明', label: '不明' }
+    ],
+    'isEventTicketAvailable': [
+        { value: 'チケット有り', label: 'チケット有り' },
+        { value: 'チケット無し', label: 'チケット無し' },
+        { value: '不明', label: '不明' }
+    ],
+    'isReservationRequired': [
+        { value: '整理券有り', label: '整理券有り' },
+        { value: '整理券無し', label: '整理券無し' },
+        { value: '不明', label: '不明' }
+    ],
+    'isGoodsAvailable': [
+        { value: '販売有り', label: '販売有り' },
+        { value: '販売無し', label: '販売無し' },
+        { value: '不明', label: '不明' }
+    ]
 };
 
 export default function AddRowModal({ onClose: handleModalClose, participants, target }: AddRowModalProps) {
@@ -36,15 +78,15 @@ export default function AddRowModal({ onClose: handleModalClose, participants, t
                 setColumns(participantColumns);
                 break;
             case 'booth':
-                setTargetName('模擬店');
+                setTargetName('模擬店企画');
                 setColumns(boothProgramColumns);
                 break;
             case 'outstage':
-                setTargetName('屋外ステージ');
+                setTargetName('屋外ステージ企画');
                 setColumns(outstageProgramColumns);
                 break;
             case 'room':
-                setTargetName('教室');
+                setTargetName('教室企画');
                 setColumns(roomProgramColumns);
                 break;
             default:
@@ -136,23 +178,38 @@ export default function AddRowModal({ onClose: handleModalClose, participants, t
                 <form className="flex flex-col gap-10 items-end overflow-y-auto max-h-[80vh] pt-24 px-6 -mx-6" onSubmit={handleSubmit}>
                     {target !== 'participant' && (
                         <div className='w-full'>
-                            <label className="block mb-1">団体名</label>
+                            <label className="block mb-1">参加団体名</label>
                             <ParticipantSelect participants={participants} setInputValue={handleParticipantSelect} />
                         </div>
                     )}
                     {columns
                         .filter(column => column.key !== 'programImage' && column.key !== 'socialMedia')
                         .map((column, index) => (
-                            <InputItem key={`${column.key}-${index}`} column={column} onInputChange={handleInputChange} />
+                            selectOptions[column.key] ? (
+                                <CustomSelect
+                                    key={`${column.key}-${index}`}
+                                    column={column}
+                                    value={inputValues[column.key] as string}
+                                    options={selectOptions[column.key]}
+                                    onChange={(value) => handleInputChange(column.key, value)}
+                                />
+                            ) : (
+                                booleanOptions[column.key] ? (
+                                    <BooleanSelect
+                                        key={`${column.key}-${index}`}
+                                        column={column}
+                                        value={inputValues[column.key] as string}
+                                        options={booleanOptions[column.key]}
+                                        onInputChange={handleInputChange}
+                                    />
+                                ) : (
+                                    <InputItem key={`${column.key}-${index}`} column={column} onInputChange={handleInputChange} />
+                                )
+                            )
                         ))}
                     {target !== 'participant' && (
                         <ProgramImage onUploadSuccess={setProgramImageFile} target={target} />
                     )}
-                    {/* {target !== 'participant' ? (
-                        <ProgramImage onUploadSuccess={setProgramImageFile} target={target} />
-                    ) : (
-                        <SocialMedia onInputChange={handleInputChange} />
-                    )} */}
                     <Button
                         type="submit"
                         variant="default"

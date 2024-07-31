@@ -11,7 +11,7 @@ export default function Header() {
                 href={'/participants'}
                 className="hover:bg-slate-200 p-2 rounded transition flex cursor-pointer relative"
             >
-                団体管理
+                参加団体管理
             </Link>
         </header>
     );

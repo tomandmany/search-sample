@@ -1,12 +1,10 @@
-// app/components/ProgramDropdown.tsx
-
 'use client'
 
 import { ChevronLeft } from "lucide-react";
 import { useState } from "react";
-import ProgramDropdownItem from "./ProgramDropdownItem";
+import ParticipantDropdownItem from "./ParticipantDropdownItem";
 
-export default function ProgramDropdown() {
+export default function ParticipantDropdown() {
     const [isHovered, setIsHovered] = useState(false);
     const [isSubmenuHovered, setIsSubmenuHovered] = useState(false);
 
@@ -26,7 +24,7 @@ export default function ProgramDropdown() {
         setIsSubmenuHovered(false);
     };
 
-    const handleTargetClick = () => {
+    const handleLinkClick = () => {
         setIsHovered(false);
         setIsSubmenuHovered(false);
     };
@@ -39,7 +37,7 @@ export default function ProgramDropdown() {
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
         >
-            <span>企画管理</span>
+            <span>参加団体管理</span>
             <ChevronLeft
                 className={`transition-transform ${isMenuActive ? "-rotate-90" : "rotate-0"}`}
             />
@@ -48,9 +46,9 @@ export default function ProgramDropdown() {
                 onMouseEnter={handleSubmenuMouseEnter}
                 onMouseLeave={handleSubmenuMouseLeave}
             >
-                <ProgramDropdownItem target="booth" name="模擬店" handleClick={handleTargetClick} />
-                <ProgramDropdownItem target="outstage" name="屋外ステージ" handleClick={handleTargetClick} />
-                <ProgramDropdownItem target="room" name="教室" handleClick={handleTargetClick} />
+                <ParticipantDropdownItem link="outstage" name="屋外ステージ" handleClick={handleLinkClick} />
+                <ParticipantDropdownItem link="booth" name="模擬店" handleClick={handleLinkClick} />
+                <ParticipantDropdownItem link="room" name="教室" handleClick={handleLinkClick} />
             </div>
         </div>
     );

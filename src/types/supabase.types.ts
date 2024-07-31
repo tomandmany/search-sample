@@ -11,61 +11,46 @@ export type Database = {
     Tables: {
       boothPrograms: {
         Row: {
-          catchphrase: string | null
+          catchphrase: string
+          categoryType: Database["public"]["Enums"]["categoryType"]
           createdAt: string
-          details: string | null
-          endHour: string | null
-          endMinutes: string | null
-          eventDate: Database["public"]["Enums"]["eventDate"] | null
-          genre: Database["public"]["Enums"]["genre"] | null
+          details: string
+          genre: Database["public"]["Enums"]["genre"]
           id: string
-          participantId: string | null
+          isDrinkAvailable: Database["public"]["Enums"]["isDrinkAvailable"]
+          isEcoTrayUsed: Database["public"]["Enums"]["isEcoTrayUsed"]
+          participantId: string
           photographPermission: Database["public"]["Enums"]["photographPermission"]
           programImage: string | null
-          programName: string | null
-          releaseDay: string | null
-          releaseMonth: string | null
-          startHour: string | null
-          startMinutes: string | null
-          venue: Database["public"]["Enums"]["venue"] | null
+          programName: string
         }
         Insert: {
-          catchphrase?: string | null
+          catchphrase: string
+          categoryType?: Database["public"]["Enums"]["categoryType"]
           createdAt?: string
-          details?: string | null
-          endHour?: string | null
-          endMinutes?: string | null
-          eventDate?: Database["public"]["Enums"]["eventDate"] | null
-          genre?: Database["public"]["Enums"]["genre"] | null
+          details: string
+          genre?: Database["public"]["Enums"]["genre"]
           id?: string
-          participantId?: string | null
+          isDrinkAvailable?: Database["public"]["Enums"]["isDrinkAvailable"]
+          isEcoTrayUsed?: Database["public"]["Enums"]["isEcoTrayUsed"]
+          participantId: string
           photographPermission?: Database["public"]["Enums"]["photographPermission"]
           programImage?: string | null
-          programName?: string | null
-          releaseDay?: string | null
-          releaseMonth?: string | null
-          startHour?: string | null
-          startMinutes?: string | null
-          venue?: Database["public"]["Enums"]["venue"] | null
+          programName: string
         }
         Update: {
-          catchphrase?: string | null
+          catchphrase?: string
+          categoryType?: Database["public"]["Enums"]["categoryType"]
           createdAt?: string
-          details?: string | null
-          endHour?: string | null
-          endMinutes?: string | null
-          eventDate?: Database["public"]["Enums"]["eventDate"] | null
-          genre?: Database["public"]["Enums"]["genre"] | null
+          details?: string
+          genre?: Database["public"]["Enums"]["genre"]
           id?: string
-          participantId?: string | null
+          isDrinkAvailable?: Database["public"]["Enums"]["isDrinkAvailable"]
+          isEcoTrayUsed?: Database["public"]["Enums"]["isEcoTrayUsed"]
+          participantId?: string
           photographPermission?: Database["public"]["Enums"]["photographPermission"]
           programImage?: string | null
-          programName?: string | null
-          releaseDay?: string | null
-          releaseMonth?: string | null
-          startHour?: string | null
-          startMinutes?: string | null
-          venue?: Database["public"]["Enums"]["venue"] | null
+          programName?: string
         }
         Relationships: [
           {
@@ -107,7 +92,7 @@ export type Database = {
           photographPermission: Database["public"]["Enums"]["photographPermission"]
           programImage: string | null
           programName: string
-          venue: Database["public"]["Enums"]["venue"]
+          venue: Database["public"]["Enums"]["outstageVenue"]
         }
         Insert: {
           catchphrase: string
@@ -120,7 +105,7 @@ export type Database = {
           photographPermission: Database["public"]["Enums"]["photographPermission"]
           programImage?: string | null
           programName: string
-          venue: Database["public"]["Enums"]["venue"]
+          venue: Database["public"]["Enums"]["outstageVenue"]
         }
         Update: {
           catchphrase?: string
@@ -133,7 +118,7 @@ export type Database = {
           photographPermission?: Database["public"]["Enums"]["photographPermission"]
           programImage?: string | null
           programName?: string
-          venue?: Database["public"]["Enums"]["venue"]
+          venue?: Database["public"]["Enums"]["outstageVenue"]
         }
         Relationships: [
           {
@@ -223,7 +208,7 @@ export type Database = {
           releaseMonth: string | null
           startHour: string | null
           startMinutes: string | null
-          venue: Database["public"]["Enums"]["venue"] | null
+          venue: Database["public"]["Enums"]["outstageVenue"] | null
         }
         Insert: {
           createdAt?: string
@@ -242,7 +227,7 @@ export type Database = {
           releaseMonth?: string | null
           startHour?: string | null
           startMinutes?: string | null
-          venue?: Database["public"]["Enums"]["venue"] | null
+          venue?: Database["public"]["Enums"]["outstageVenue"] | null
         }
         Update: {
           createdAt?: string
@@ -261,7 +246,7 @@ export type Database = {
           releaseMonth?: string | null
           startHour?: string | null
           startMinutes?: string | null
-          venue?: Database["public"]["Enums"]["venue"] | null
+          venue?: Database["public"]["Enums"]["outstageVenue"] | null
         }
         Relationships: [
           {
@@ -291,7 +276,6 @@ export type Database = {
           releaseMonth: string | null
           startHour: string | null
           startMinutes: string | null
-          venue: Database["public"]["Enums"]["venue"] | null
         }
         Insert: {
           catchphrase?: string | null
@@ -310,7 +294,6 @@ export type Database = {
           releaseMonth?: string | null
           startHour?: string | null
           startMinutes?: string | null
-          venue?: Database["public"]["Enums"]["venue"] | null
         }
         Update: {
           catchphrase?: string | null
@@ -329,7 +312,6 @@ export type Database = {
           releaseMonth?: string | null
           startHour?: string | null
           startMinutes?: string | null
-          venue?: Database["public"]["Enums"]["venue"] | null
         }
         Relationships: [
           {
@@ -391,10 +373,16 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      categoryType: "タイプ1" | "タイプ2" | "タイプ3"
       eventDate: "2日" | "3日" | "4日"
       genre: "音楽" | "ダンス" | "パフォーマンス"
+      isDrinkAvailable: "販売有り" | "販売無し" | "不明"
+      isEcoTrayUsed: "利用有り" | "利用無し" | "不明"
+      outstageVenue:
+        | "メインステージ"
+        | "パフォーマンスエリア"
+        | "エントランスエリア"
       photographPermission: "可" | "不可" | "不明"
-      venue: "メインステージ" | "パフォーマンスエリア" | "エントランスエリア"
     }
     CompositeTypes: {
       [_ in never]: never

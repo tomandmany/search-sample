@@ -59,7 +59,7 @@ export default function ParticipantSelect({ participants, setInputValue }: Parti
                     id='participantName'
                     name='participantName'
                     type="text"
-                    placeholder="団体名を検索する"
+                    placeholder="参加団体名を検索する"
                     value={searchQuery}
                     onKeyDown={handleSearchKeyDown}
                     onChange={handleSearchChange}
