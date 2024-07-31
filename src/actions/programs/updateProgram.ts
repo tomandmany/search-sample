@@ -14,6 +14,7 @@ export default async function updateProgram(
   target: Target
 ): Promise<Response<TablesUpdate<typeof tableName>>> {
   const id = formData.get('id') as string;
+  
   if (target === 'participant') {
     console.error('Invalid target:', target);
     return { success: false, error: 'Invalid target', data: null };

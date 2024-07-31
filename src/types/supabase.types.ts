@@ -11,11 +11,11 @@ export type Database = {
     Tables: {
       boothPrograms: {
         Row: {
+          boothGenre: Database["public"]["Enums"]["boothGenre"]
           catchphrase: string
           categoryType: Database["public"]["Enums"]["categoryType"]
           createdAt: string
           details: string
-          genre: Database["public"]["Enums"]["genre"]
           id: string
           isDrinkAvailable: Database["public"]["Enums"]["isDrinkAvailable"]
           isEcoTrayUsed: Database["public"]["Enums"]["isEcoTrayUsed"]
@@ -25,11 +25,11 @@ export type Database = {
           programName: string
         }
         Insert: {
+          boothGenre?: Database["public"]["Enums"]["boothGenre"]
           catchphrase: string
           categoryType?: Database["public"]["Enums"]["categoryType"]
           createdAt?: string
           details: string
-          genre?: Database["public"]["Enums"]["genre"]
           id?: string
           isDrinkAvailable?: Database["public"]["Enums"]["isDrinkAvailable"]
           isEcoTrayUsed?: Database["public"]["Enums"]["isEcoTrayUsed"]
@@ -39,11 +39,11 @@ export type Database = {
           programName: string
         }
         Update: {
+          boothGenre?: Database["public"]["Enums"]["boothGenre"]
           catchphrase?: string
           categoryType?: Database["public"]["Enums"]["categoryType"]
           createdAt?: string
           details?: string
-          genre?: Database["public"]["Enums"]["genre"]
           id?: string
           isDrinkAvailable?: Database["public"]["Enums"]["isDrinkAvailable"]
           isEcoTrayUsed?: Database["public"]["Enums"]["isEcoTrayUsed"]
@@ -62,63 +62,45 @@ export type Database = {
           },
         ]
       }
-      channelModels: {
-        Row: {
-          createdAt: string
-          id: string
-          name: string
-        }
-        Insert: {
-          createdAt?: string
-          id?: string
-          name: string
-        }
-        Update: {
-          createdAt?: string
-          id?: string
-          name?: string
-        }
-        Relationships: []
-      }
       outstagePrograms: {
         Row: {
           catchphrase: string
           createdAt: string
           details: string
           eventDate: Database["public"]["Enums"]["eventDate"]
-          genre: Database["public"]["Enums"]["genre"]
           id: string
+          outstageGenre: Database["public"]["Enums"]["outstageGenre"]
+          outstageVenue: Database["public"]["Enums"]["outstageVenue"]
           participantId: string
           photographPermission: Database["public"]["Enums"]["photographPermission"]
           programImage: string | null
           programName: string
-          venue: Database["public"]["Enums"]["outstageVenue"]
         }
         Insert: {
           catchphrase: string
           createdAt?: string
           details: string
           eventDate: Database["public"]["Enums"]["eventDate"]
-          genre: Database["public"]["Enums"]["genre"]
           id?: string
+          outstageGenre: Database["public"]["Enums"]["outstageGenre"]
+          outstageVenue: Database["public"]["Enums"]["outstageVenue"]
           participantId?: string
           photographPermission: Database["public"]["Enums"]["photographPermission"]
           programImage?: string | null
           programName: string
-          venue: Database["public"]["Enums"]["outstageVenue"]
         }
         Update: {
           catchphrase?: string
           createdAt?: string
           details?: string
           eventDate?: Database["public"]["Enums"]["eventDate"]
-          genre?: Database["public"]["Enums"]["genre"]
           id?: string
+          outstageGenre?: Database["public"]["Enums"]["outstageGenre"]
+          outstageVenue?: Database["public"]["Enums"]["outstageVenue"]
           participantId?: string
           photographPermission?: Database["public"]["Enums"]["photographPermission"]
           programImage?: string | null
           programName?: string
-          venue?: Database["public"]["Enums"]["outstageVenue"]
         }
         Relationships: [
           {
@@ -181,137 +163,62 @@ export type Database = {
             referencedRelation: "participants"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "participantSocialMedias_socialMediaModelId_fkey"
-            columns: ["socialMediaModelId"]
-            isOneToOne: false
-            referencedRelation: "channelModels"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      programs: {
-        Row: {
-          createdAt: string
-          details: string | null
-          endHour: string | null
-          endMinutes: string | null
-          eventDate: Database["public"]["Enums"]["eventDate"] | null
-          genre: Database["public"]["Enums"]["genre"] | null
-          id: string
-          image: string | null
-          isPhotographable: Database["public"]["Enums"]["photographPermission"]
-          message: string | null
-          name: string | null
-          participantId: string | null
-          releaseDay: string | null
-          releaseMonth: string | null
-          startHour: string | null
-          startMinutes: string | null
-          venue: Database["public"]["Enums"]["outstageVenue"] | null
-        }
-        Insert: {
-          createdAt?: string
-          details?: string | null
-          endHour?: string | null
-          endMinutes?: string | null
-          eventDate?: Database["public"]["Enums"]["eventDate"] | null
-          genre?: Database["public"]["Enums"]["genre"] | null
-          id?: string
-          image?: string | null
-          isPhotographable?: Database["public"]["Enums"]["photographPermission"]
-          message?: string | null
-          name?: string | null
-          participantId?: string | null
-          releaseDay?: string | null
-          releaseMonth?: string | null
-          startHour?: string | null
-          startMinutes?: string | null
-          venue?: Database["public"]["Enums"]["outstageVenue"] | null
-        }
-        Update: {
-          createdAt?: string
-          details?: string | null
-          endHour?: string | null
-          endMinutes?: string | null
-          eventDate?: Database["public"]["Enums"]["eventDate"] | null
-          genre?: Database["public"]["Enums"]["genre"] | null
-          id?: string
-          image?: string | null
-          isPhotographable?: Database["public"]["Enums"]["photographPermission"]
-          message?: string | null
-          name?: string | null
-          participantId?: string | null
-          releaseDay?: string | null
-          releaseMonth?: string | null
-          startHour?: string | null
-          startMinutes?: string | null
-          venue?: Database["public"]["Enums"]["outstageVenue"] | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "projects_participantId_fkey"
-            columns: ["participantId"]
-            isOneToOne: false
-            referencedRelation: "participants"
-            referencedColumns: ["id"]
-          },
         ]
       }
       roomPrograms: {
         Row: {
-          catchphrase: string | null
+          catchphrase: string
           createdAt: string
-          details: string | null
-          endHour: string | null
-          endMinutes: string | null
-          eventDate: Database["public"]["Enums"]["eventDate"] | null
-          genre: Database["public"]["Enums"]["genre"] | null
+          details: string
+          eventBuilding: Database["public"]["Enums"]["eventBuilding"]
+          eventDate: Database["public"]["Enums"]["eventDate"]
+          eventRoom: string
           id: string
-          participantId: string | null
+          isEcoTrayUsed: Database["public"]["Enums"]["isEcoTrayUsed"]
+          isEventTicketAvailable: Database["public"]["Enums"]["isEventTicketAvailable"]
+          isGoodsAvailable: Database["public"]["Enums"]["isGoodsAvailable"]
+          isReservationRequired: Database["public"]["Enums"]["isReservationRequired"]
+          participantId: string
           photographPermission: Database["public"]["Enums"]["photographPermission"]
           programImage: string | null
-          programName: string | null
-          releaseDay: string | null
-          releaseMonth: string | null
-          startHour: string | null
-          startMinutes: string | null
+          programName: string
+          roomGenre: Database["public"]["Enums"]["roomGenre"]
         }
         Insert: {
-          catchphrase?: string | null
+          catchphrase: string
           createdAt?: string
-          details?: string | null
-          endHour?: string | null
-          endMinutes?: string | null
-          eventDate?: Database["public"]["Enums"]["eventDate"] | null
-          genre?: Database["public"]["Enums"]["genre"] | null
+          details: string
+          eventBuilding?: Database["public"]["Enums"]["eventBuilding"]
+          eventDate?: Database["public"]["Enums"]["eventDate"]
+          eventRoom: string
           id?: string
-          participantId?: string | null
+          isEcoTrayUsed?: Database["public"]["Enums"]["isEcoTrayUsed"]
+          isEventTicketAvailable?: Database["public"]["Enums"]["isEventTicketAvailable"]
+          isGoodsAvailable?: Database["public"]["Enums"]["isGoodsAvailable"]
+          isReservationRequired?: Database["public"]["Enums"]["isReservationRequired"]
+          participantId: string
           photographPermission?: Database["public"]["Enums"]["photographPermission"]
           programImage?: string | null
-          programName?: string | null
-          releaseDay?: string | null
-          releaseMonth?: string | null
-          startHour?: string | null
-          startMinutes?: string | null
+          programName: string
+          roomGenre?: Database["public"]["Enums"]["roomGenre"]
         }
         Update: {
-          catchphrase?: string | null
+          catchphrase?: string
           createdAt?: string
-          details?: string | null
-          endHour?: string | null
-          endMinutes?: string | null
-          eventDate?: Database["public"]["Enums"]["eventDate"] | null
-          genre?: Database["public"]["Enums"]["genre"] | null
+          details?: string
+          eventBuilding?: Database["public"]["Enums"]["eventBuilding"]
+          eventDate?: Database["public"]["Enums"]["eventDate"]
+          eventRoom?: string
           id?: string
-          participantId?: string | null
+          isEcoTrayUsed?: Database["public"]["Enums"]["isEcoTrayUsed"]
+          isEventTicketAvailable?: Database["public"]["Enums"]["isEventTicketAvailable"]
+          isGoodsAvailable?: Database["public"]["Enums"]["isGoodsAvailable"]
+          isReservationRequired?: Database["public"]["Enums"]["isReservationRequired"]
+          participantId?: string
           photographPermission?: Database["public"]["Enums"]["photographPermission"]
           programImage?: string | null
-          programName?: string | null
-          releaseDay?: string | null
-          releaseMonth?: string | null
-          startHour?: string | null
-          startMinutes?: string | null
+          programName?: string
+          roomGenre?: Database["public"]["Enums"]["roomGenre"]
         }
         Relationships: [
           {
@@ -322,30 +229,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      sampleDnd: {
-        Row: {
-          columnsOrder: number
-          content: string
-          createdAt: string
-          id: string
-          rowsOrder: number
-        }
-        Insert: {
-          columnsOrder: number
-          content: string
-          createdAt?: string
-          id?: string
-          rowsOrder: number
-        }
-        Update: {
-          columnsOrder?: number
-          content?: string
-          createdAt?: string
-          id?: string
-          rowsOrder?: number
-        }
-        Relationships: []
       }
       socialMediaModels: {
         Row: {
@@ -373,16 +256,22 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      boothGenre: "模擬店ジャンル1" | "模擬店ジャンル2" | "模擬店ジャンル3"
       categoryType: "タイプ1" | "タイプ2" | "タイプ3"
+      eventBuilding: "第一校舎" | "メディア棟" | "和泉ラーニングスクエア"
       eventDate: "2日" | "3日" | "4日"
-      genre: "音楽" | "ダンス" | "パフォーマンス"
       isDrinkAvailable: "販売有り" | "販売無し" | "不明"
       isEcoTrayUsed: "利用有り" | "利用無し" | "不明"
+      isEventTicketAvailable: "チケット有り" | "チケット無し" | "不明"
+      isGoodsAvailable: "販売有り" | "販売無し" | "不明"
+      isReservationRequired: "整理券有り" | "整理券無し" | "不明"
+      outstageGenre: "音楽" | "ダンス" | "パフォーマンス"
       outstageVenue:
         | "メインステージ"
         | "パフォーマンスエリア"
         | "エントランスエリア"
       photographPermission: "可" | "不可" | "不明"
+      roomGenre: "教室ジャンル1" | "教室ジャンル2" | "教室ジャンル3"
     }
     CompositeTypes: {
       [_ in never]: never
